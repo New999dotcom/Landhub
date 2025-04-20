@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase History | PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-green-600 to-green-800 text-white py-12 text-center shadow-xl">
+        <h1 class="text-5xl font-extrabold tracking-wide">Purchase History</h1>
+        <p class="mt-3 text-xl">Review your past property purchases with PrimeLand Hub</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-10 px-6">
+        <!-- Back Button -->
+        <div class="mb-8">
+            <a href="{% url 'dashboard' %}" 
+               class="inline-flex items-center bg-green-600 text-white p-3 rounded-xl hover:bg-green-700 transition duration-300 focus:ring-4 focus:ring-green-500 shadow-md">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Purchase History -->
+        {% if purchases %}
+            <div class="space-y-6">
+                {% for payment in purchases %}
+                <div class="bg-white rounded-2xl shadow-xl p-6 border border-green-400 hover:shadow-3xl transition duration-300 transform hover:-translate-y-2">
+                    <h2 class="text-2xl font-semibold text-green-800">{{ payment.property.name }}</h2>
+                    <p class="text-sm text-gray-500 mt-1">📅 {{ payment.date|date:"F d, Y H:i A" }}</p>
+                    <p class="text-gray-700 mt-2">📍 {{ payment.property.place }}</p>
+                    <p class="text-xl font-bold text-green-600 mt-2">💰 ₹{{ payment.amount }}</p>
+                    <p class="text-sm text-gray-500 mt-2">Seller: {{ payment.seller.name }} ({{ payment.seller.email }})</p>
+                    <p class="text-sm text-gray-500 mt-1">Order ID: {{ payment.razorpay_order_id }}</p>
+                    <p class="text-sm text-gray-500 mt-1">Payment ID: {{ payment.razorpay_payment_id }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-2xl shadow-xl p-6 border border-green-400 text-center">
+                <p class="text-gray-600 text-lg font-semibold">You haven't purchased any properties yet.</p>
+                <a href="{% url 'viewpropertiesbuyer' %}" 
+                   class="mt-4 inline-block bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-green-900 transition duration-300 font-bold text-lg">
+                    Explore Properties
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

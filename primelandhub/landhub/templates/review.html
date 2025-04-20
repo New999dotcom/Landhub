@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add a Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for background image with overlay */
+        body {
+            background-image:url("https://www.shutterstock.com/image-photo/user-give-rating-service-experience-600nw-1970905817.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-green-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+        <h2 class="text-2xl font-bold text-green-700">Submit Your Review</h2>
+
+        <form id="review-form" method="POST" class="mt-4">
+            {% csrf_token %}
+            <!-- Review Input -->
+            <label for="review" class="block text-green-700 font-medium mb-2">Your Review:</label>
+            <textarea id="review" name="review" required class="w-full p-3 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+
+            <!-- Star Rating -->
+            <label class="block text-green-700 font-medium mt-4 mb-2">Rating:</label>
+            <div class="flex justify-center space-x-2">
+                <button type="button" class="star text-gray-300 text-3xl focus:outline-none" data-value="1">★</button>
+                <button type="button" class="star text-gray-300 text-3xl focus:outline-none" data-value="2">★</button>
+                <button type="button" class="star text-gray-300 text-3xl focus:outline-none" data-value="3">★</button>
+                <button type="button" class="star text-gray-300 text-3xl focus:outline-none" data-value="4">★</button>
+                <button type="button" class="star text-gray-300 text-3xl focus:outline-none" data-value="5">★</button>
+            </div>
+            <input type="hidden" name="rating" id="rating" value="0">
+
+            <!-- Submit Button -->
+            <button type="submit" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                Submit Review
+            </button>
+        </form>
+
+        <!-- Success Message -->
+        <div id="success-message" class="mt-4 hidden text-green-600 font-semibold">
+            Thanks for your feedback! Redirecting...
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const stars = document.querySelectorAll(".star");
+            const ratingInput = document.getElementById("rating");
+
+            stars.forEach(star => {
+                star.addEventListener("click", function () {
+                    const value = this.getAttribute("data-value");
+
+                    // Set hidden input value
+                    ratingInput.value = value;
+
+                    // Reset all stars
+                    stars.forEach(s => s.classList.remove("text-green-500"));
+                    stars.forEach(s => s.classList.add("text-gray-300"));
+
+                    // Highlight selected stars
+                    for (let i = 0; i < value; i++) {
+                        stars[i].classList.add("text-green-500");
+                        stars[i].classList.remove("text-gray-300");
+                    }
+                });
+            });
+
+            // Handle form submission using AJAX
+            const form = document.getElementById("review-form");
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                // Disable the submit button to prevent multiple submissions
+                const submitButton = form.querySelector("button[type='submit']");
+                submitButton.disabled = true;
+                submitButton.textContent = "Submitting...";
+
+                // Prepare form data
+                const formData = new FormData(form);
+
+                // Send AJAX request
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Show success message
+                    const successMessage = document.getElementById("success-message");
+                    if (data.success) {
+                        successMessage.classList.remove("hidden");
+                        
+                        // Redirect to homepage after 3 seconds
+                        setTimeout(function() {
+                            window.location.href = "/";
+                        }, 3000);
+                    } else {
+                        // Handle error message if not logged in
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    alert("Something went wrong. Please try again.");
+                })
+                .finally(() => {
+                    // Re-enable the submit button after AJAX call
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Submit Review";
+                });
+            });
+        });
+    </script>
+</body>
+</html>

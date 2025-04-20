@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Price Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e8f5e9; /* Light green background */
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-primary:hover {
+            background-color: #218838;
+            border-color: #218838;
+        }
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-secondary:hover {
+            background-color: #e8f5e9;
+        }
+        .prediction-box {
+            background: #f8fff0;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .highlight {
+            color: #28a745;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .stylish-select {
+            background-color: #f8fff0; /* Light green background */
+            border: 2px solid #28a745; /* Green border */
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            color: #28a745; /* Green text */
+            transition: all 0.3s ease;
+        }
+        
+        .stylish-select:focus {
+            border-color: #218838; /* Darker green on focus */
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Subtle green glow */
+            outline: none;
+        }
+        
+        .stylish-select option {
+            background-color: #ffffff; /* White background for options */
+            color: #333; /* Dark text for readability */
+        }
+        
+        .stylish-select option:hover {
+            background-color: #e8f5e9; /* Light green hover effect */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center text-success">Property Price Estimator</h1>
+        
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            
+            <!-- Property Type -->
+            <select class="form-select" name="propertytype" required>
+                <option value="">Select type</option>
+                <option value="Apartment">Apartment</option>
+                <option value="Villa">Villa</option>
+                <option value="Office">Office</option>
+                <!-- Add House and Land if desired -->
+            </select>
+
+            <!-- Transaction Type -->
+            <div class="col-md-6">
+                <label class="form-label">Transaction Type</label>
+                <select class="form-select" name="prop" required>
+                    <option value="">Rent/Sale</option>
+                    <option value="rent">Rent</option>
+                    <option value="sale">Sale</option>
+                </select>
+            </div>
+
+            <!-- Numeric Inputs -->
+            <div class="col-md-4">
+                <label class="form-label">Bedrooms</label>
+                <input type="number" class="form-control" name="bedrooms" min="1" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Bathrooms</label>
+                <input type="number" class="form-control" name="bathrooms" min="1" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Area (sqft)</label>
+                <input type="number" class="form-control" name="area_sqft" step="0.01" required>
+            </div>
+
+            <!-- Location -->
+            <div class="col-md-6">
+                <label class="form-label">Location</label>
+                <select class="form-select stylish-select" name="location" required>
+                    <option value="">Select a location</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Alappuzha">Alappuzha</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Dubai">Dubai</option>
+                    <option value="Ernakulam">Ernakulam</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Jaipur">Jaipur</option>
+                    <option value="Kannur">Kannur</option>
+                    <option value="Kochi">Kochi</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Kollam">Kollam</option>
+                    <option value="Kottayam">Kottayam</option>
+                    <option value="Kozhikode">Kozhikode</option>
+                    <option value="London">London</option>
+                    <option value="Lucknow">Lucknow</option>
+                    <option value="Malappuram">Malappuram</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="New York">New York</option>
+                    <option value="Palakkad">Palakkad</option>
+                    <option value="Paris">Paris</option>
+                    <option value="Pathanamthitta">Pathanamthitta</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Singapore">Singapore</option>
+                    <option value="Surat">Surat</option>
+                    <option value="Sydney">Sydney</option>
+                    <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                    <option value="Thrissur">Thrissur</option>
+                    <option value="Tokyo">Tokyo</option>
+                </select>
+            </div>
+
+            <!-- Checkboxes -->
+            <div class="col-md-6">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="is_furnished">
+                    <label class="form-check-label">Furnished</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="parking_space">
+                    <label class="form-check-label">Parking Available</label>
+                </div>
+            </div>
+
+            <div class="col-12 d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary btn-lg">Estimate Price</button>
+                <button type="reset" class="btn btn-secondary btn-lg">Reset</button>
+            </div>
+        </form>
+
+        <!-- Prediction Result -->
+        {% if predicted_price %}
+            <div class="prediction-box text-center mt-5">
+                <h3>Estimated Property Value</h3>
+                <div class="highlight">₹{{ predicted_price|floatformat:0 }}</div>
+                <p class="text-muted mt-2">*This is an AI-powered estimate</p>
+            </div>
+        {% endif %}
+
+        <!-- Error Message -->
+        {% if error %}
+            <div class="alert alert-danger mt-4" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- Back to Home Button -->
+        <div class="text-center mt-4">
+            <a href="{% url 'home' %}" class="btn btn-secondary btn-lg">Back to Home</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

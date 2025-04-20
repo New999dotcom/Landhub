@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Successful | PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-10 border-t-8 border-green-600 max-w-lg w-full text-center">
+            <h2 class="text-3xl font-bold text-green-700 mb-4">✅ Payment Successful</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                Your payment was successful and the property has been marked as <span class="font-semibold text-green-600">Sold</span>.
+            </p>
+            
+            <a href="{% url 'dashboard' %}" 
+               class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-xl transition duration-300 shadow-md">
+                🏠 Return to Dashboard
+            </a>
+
+            <p class="mt-6 text-sm text-gray-400">Thank you for choosing PrimeLand Hub!</p>
+        </div>
+    </div>
+
+</body>
+</html>

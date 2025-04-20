@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask a Question | PrimeLand Hub Forum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Styles for Consistency with Forum */
+        body { font-family: 'Inter', sans-serif; }
+        .nav-gradient { background: linear-gradient(90deg, #059669 0%, #10b981 100%); }
+        .form-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .form-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); }
+        .glow { box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+        input, textarea { transition: all 0.3s ease; }
+        input:focus, textarea:focus { border-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.2); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+
+<!-- 🚀 Navigation Bar -->
+<nav class="nav-gradient shadow-xl fixed top-0 w-full z-50 py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+        <a href="/" class="flex items-center space-x-3 hover:scale-105 transition-transform duration-300">
+            <img src="{% static 'img/primelandhub.webp' %}" class="h-12 w-auto rounded-lg shadow-md glow" alt="PrimeLand Hub Logo">
+            <span class="text-3xl font-bold text-white tracking-tight">PrimeLand</span>
+        </a>
+        <div class="flex items-center space-x-5">
+            <a href="{% url 'forum_home' %}" class="bg-gray-700 text-white px-5 py-2 rounded-full hover:bg-gray-600 transition-all duration-300 shadow-md font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Forum
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- 📝 Ask Question Form -->
+<main class="max-w-7xl mx-auto pt-24 pb-10 px-4 sm:px-6 lg:px-8">
+    <div class="form-card bg-gray-800 p-8 rounded-xl shadow-md border border-gray-700">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+            <i class="fas fa-question-circle mr-3 text-emerald-400 text-3xl"></i>Ask a New Question
+        </h2>
+
+        <form method="POST" action="{% url 'add_question' %}" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-gray-200 font-semibold mb-2">Title</label>
+                <input type="text" name="title" class="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-full focus:ring-2 focus:ring-emerald-400 focus:outline-none shadow-sm" placeholder="Enter a concise, specific title" required>
+            </div>
+            
+            <div>
+                <label class="block text-gray-200 font-semibold mb-2">Description</label>
+                <textarea name="description" class="w-full px-4 py-3 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-2 focus:ring-emerald-400 focus:outline-none shadow-sm" rows="6" placeholder="Provide details about your question..." required></textarea>
+            </div>
+            
+            <button type="submit" class="bg-emerald-600 text-white px-6 py-3 rounded-full hover:bg-emerald-700 transition-all duration-300 shadow-md glow font-semibold">
+                <i class="fas fa-paper-plane mr-2"></i>Submit Question
+            </button>
+        </form>
+    </div>
+</main>
+
+</body>
+</html>

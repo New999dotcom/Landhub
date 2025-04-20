@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-cover bg-center min-h-screen flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0');">
+    <div class="w-full max-w-sm mx-auto">
+        <!-- Display Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-{% if message.tags == 'success' %}green{% else %}red{% endif %}-200 border border-{% if message.tags == 'success' %}green{% else %}red{% endif %}-400 text-{% if message.tags == 'success' %}green{% else %}red{% endif %}-600 px-4 py-3 rounded-md mb-4 text-center shadow-md">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Login Form Card -->
+        <div class="bg-white bg-opacity-80 p-8 rounded-lg shadow-lg">
+            <h2 class="text-3xl font-semibold text-green-600 text-center mb-6">Welcome Back</h2>
+
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+
+                <!-- Email Input -->
+                <div>
+                    <input type="email" name="email" placeholder="Enter your email" required class="w-full p-3 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-green-400">
+                </div>
+
+                <!-- Password Input with Toggle -->
+                <div class="relative">
+                    <input type="password" id="password" name="pwd" placeholder="Enter your password" required class="w-full p-3 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-green-400">
+                    <span class="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-600" onclick="togglePassword()">
+                        👁
+                    </span>
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" onclick="window.location.href='{% url 'dashboard' %}'" class="w-full py-3 bg-green-600 text-white font-semibold rounded-md hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-transform transform hover:scale-105 duration-300">
+                    Login
+                </button>
+            </form>
+
+            <!-- Extra Links -->
+            <p class="text-center text-sm text-gray-700 mt-4">
+                <a href="{% url 'Forgot_passwordbuyer' %}" class="text-green-600 font-semibold hover:underline">Forgot Password?</a>
+            </p>
+            <p class="text-center text-sm text-gray-700 mt-2">
+                Don't have an account? 
+                <a href="{% url 'Register_buyer' %}" class="text-green-600 font-semibold hover:underline">Sign Up Here</a>
+            </p>
+
+            <!-- Optional Back Button (if needed) -->
+            <button class="w-full py-3 mt-4 bg-gray-300 text-gray-800 font-semibold rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300" onclick="window.location.href='{% url 'index' %}'">
+                Back
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript for Password Toggle -->
+    <script>
+        function togglePassword() {
+            let passwordField = document.getElementById("password");
+            passwordField.type = passwordField.type === "password" ? "text" : "password";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Replies (Buyer)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-50 min-h-screen flex flex-col items-center justify-center p-6">
+
+    <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
+        <h2 class="text-3xl font-semibold text-green-600 mb-6 text-center">Admin Replies to Your Messages</h2>
+
+        {% if messages %}
+            <div class="overflow-x-auto">
+                <table class="w-full border border-green-300 rounded-lg shadow-md">
+                    <thead class="bg-green-600 text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Subject</th>
+                            <th class="px-6 py-3 text-left">Your Message</th>
+                            <th class="px-6 py-3 text-left">Admin Reply</th>
+                            <th class="px-6 py-3 text-left">Replied On</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white">
+                        {% for msg in messages %}
+                        <tr class="border-b border-green-300 hover:bg-green-100 transition duration-200">
+                            <td class="px-6 py-4 font-semibold text-green-700">{{ msg.subject }}</td>
+                            <td class="px-6 py-4">{{ msg.message }}</td>
+                            <td class="px-6 py-4 text-green-600 font-medium">{{ msg.reply }}</td>
+                            <td class="px-6 py-4 text-gray-500">{{ msg.replied_at|date:"M d, Y H:i A" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-gray-500 text-lg mt-4">
+                <p>No messages have been replied to yet. Please check again later.</p>
+            </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="text-center mt-6">
+            <a href="{% url 'dashboard' %}" class="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition duration-300">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

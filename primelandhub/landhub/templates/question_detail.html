@@ -1,0 +1,24 @@
+<h1>{{ question.title }}</h1>
+<p>{{ question.description }}</p>
+<small>Asked by {{ question.user.name }} on {{ question.created_at|date:"M d, Y" }}</small>
+
+<h3>Answers:</h3>
+{% for answer in question.answers.all %}
+    <div class="border p-4 mb-2">
+        <p>{{ answer.content }}</p>
+        <small>Answered by {{ answer.user.name }} | {{ answer.created_at|date:"M d, Y" }}</small>
+        
+        <button class="upvote-btn bg-green-500 text-white px-4 py-2 rounded" 
+                data-answer-id="{{ answer.id }}">
+            👍 Upvote ({{ answer.upvotes }})
+        </button>
+
+        {% if question.best_answer == answer %}
+            <span class="bg-yellow-400 px-2 py-1 rounded">✅ Best Answer</span>
+        {% elif question.user.email == request.session.email %}
+            <a href="{% url 'mark_best_answer' question.id answer.id %}" class="bg-blue-500 text-white px-2 py-1 rounded">
+                Mark as Best Answer
+            </a>
+        {% endif %}
+    </div>
+{% endfor %}

@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Properties | PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-green-600 to-green-800 text-white py-12 text-center shadow-xl">
+        <h1 class="text-5xl font-extrabold tracking-wide">Find Your Dream Home</h1>
+        <p class="mt-3 text-xl">Discover the best properties tailored for buyers</p>
+    </div>
+
+    <!-- Search & Filters Section -->
+    <div class="max-w-7xl mx-auto px-6 mt-8">
+        <div class="flex flex-wrap gap-4 bg-white p-6 rounded-2xl shadow-2xl border border-green-400">
+            <a href="{% url 'home' %}" 
+               class="bg-green-600 text-white p-3 rounded-xl hover:bg-green-700 transition duration-300 flex items-center focus:ring-4 focus:ring-green-500">
+                <i class="fas fa-home mr-2"></i> Home
+            </a>
+            <input type="text" id="search" placeholder="Search by name or location..." 
+                   class="w-full sm:w-1/3 p-3 border rounded-xl focus:ring-4 focus:ring-green-500 outline-none">
+            <select id="priceFilter" class="w-full sm:w-1/4 p-3 border rounded-xl focus:ring-4 focus:ring-green-500">
+                <option value="">Select Price Range</option>
+                <option value="low">Below ₹100,000</option>
+                <option value="mid">₹100K - ₹500K</option>
+                <option value="high">Above ₹500,000</option>
+            </select>
+            <select id="propertyType" class="w-full sm:w-1/4 p-3 border rounded-xl focus:ring-4 focus:ring-green-500">
+                <option value="">Select Property Type</option>
+                <option value="house">House</option>
+                <option value="apartment">Apartment</option>
+                <option value="land">Land</option>
+                <option value="office">Office</option>
+            </select>
+            <select id="sortBy" class="w-full sm:w-1/4 p-3 border rounded-xl focus:ring-4 focus:ring-green-500">
+                <option value="">Sort By</option>
+                <option value="lowToHigh">Price: Low to High</option>
+                <option value="highToLow">Price: High to Low</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Properties Listing -->
+    <div class="max-w-7xl mx-auto px-6 mt-10">
+        <div id="propertyList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for property in properties %}
+            <div class="property-card bg-white rounded-2xl shadow-xl border border-green-400 hover:shadow-3xl transition duration-300 transform hover:-translate-y-2" 
+                 data-type="{{ property.propertytype|lower }}" data-price="{{ property.price }}">
+                <img src="{{ property.image.url }}" alt="{{ property.name }}" class="w-full h-56 object-cover rounded-t-2xl">
+                <div class="p-6">
+                    <h2 class="property-name text-3xl font-extrabold text-green-700">{{ property.name }}</h2>
+                    <p class="property-location text-gray-500 text-sm">📍 {{ property.place }}</p>
+                    <p class="property-price text-xl font-bold text-green-600 mt-3">💰 ₹{{ property.price }}</p>
+                    <p class="property-type text-sm text-gray-500 mt-2 capitalize">🏡 {{ property.propertytype }}</p>
+                    {% if property.status|lower != "sold" %}
+                    <a href="{% url 'property_detail' property.id %}" 
+                       class="mt-5 inline-block bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-green-900 transition duration-300 font-bold text-lg">
+                        View Details
+                    </a>
+                    {% else %}
+                    <span class="mt-5 inline-block bg-gray-300 text-gray-600 px-6 py-3 rounded-xl cursor-not-allowed font-bold text-lg">
+                        Sold
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center col-span-3 text-gray-600 font-semibold text-lg">No properties available at the moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- JavaScript for Search & Filters -->
+    <script>
+        function debounce(func, wait = 300) {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        const propertyContainer = document.getElementById('propertyList');
+        let properties = Array.from(document.querySelectorAll('.property-card')).map(card => ({
+            element: card,
+            name: card.querySelector('.property-name').textContent.toLowerCase(),
+            location: card.querySelector('.property-location').textContent.toLowerCase(),
+            price: parseFloat(card.dataset.price),
+            type: card.dataset.type.toLowerCase()
+        }));
+
+        function applyFilters() {
+            const searchQuery = document.getElementById('search').value.toLowerCase();
+            const priceFilter = document.getElementById('priceFilter').value;
+            const propertyType = document.getElementById('propertyType').value.toLowerCase();
+            const sortBy = document.getElementById('sortBy').value;
+
+            let filtered = properties.filter(prop => {
+                const matchesSearch = prop.name.includes(searchQuery) || prop.location.includes(searchQuery);
+                const matchesType = !propertyType || prop.type === propertyType;
+
+                let matchesPrice = true;
+                switch (priceFilter) {
+                    case 'low': matchesPrice = prop.price < 100000; break;
+                    case 'mid': matchesPrice = prop.price >= 100000 && prop.price <= 500000; break;
+                    case 'high': matchesPrice = prop.price > 500000; break;
+                }
+
+                return matchesSearch && matchesPrice && matchesType;
+            });
+
+            if (sortBy === 'lowToHigh') filtered.sort((a, b) => a.price - b.price);
+            else if (sortBy === 'highToLow') filtered.sort((a, b) => b.price - a.price);
+
+            propertyContainer.innerHTML = '';
+            if (filtered.length) {
+                const fragment = document.createDocumentFragment();
+                filtered.forEach(({ element }) => fragment.appendChild(element.cloneNode(true)));
+                propertyContainer.appendChild(fragment);
+            } else {
+                propertyContainer.innerHTML = `
+                    <p class="text-center col-span-3 text-red-600 font-semibold text-lg animate-pulse">
+                        ❌ No properties found matching your criteria
+                    </p>
+                `;
+            }
+        }
+
+        document.getElementById('search').addEventListener('input', debounce(applyFilters));
+        document.getElementById('priceFilter').addEventListener('change', applyFilters);
+        document.getElementById('propertyType').addEventListener('change', applyFilters);
+        document.getElementById('sortBy').addEventListener('change', applyFilters);
+
+        applyFilters();
+    </script>
+</body>
+</html>

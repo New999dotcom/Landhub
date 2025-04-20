@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - PrimelandHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-green-50">
+    <div class="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg">
+        <!-- Header Section -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-green-700">About Us</h1>
+            <p class="text-gray-600 mt-2">Your trusted partner in real estate services.</p>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="mb-10">
+            <h2 class="text-2xl font-semibold text-green-700 mb-3">Our Mission</h2>
+            <p class="text-gray-700">
+                At PrimelandHub, our mission is to simplify property transactions and empower our clients to find 
+                their dream properties. We are committed to excellence, transparency, and innovation in every deal.
+            </p>
+        </div>
+
+        <!-- Vision Section -->
+        <div class="mb-10">
+            <h2 class="text-2xl font-semibold text-green-700 mb-3">Our Vision</h2>
+            <p class="text-gray-700">
+                We aspire to become the leading real estate platform, offering seamless access to the best properties 
+                and trusted real estate experts. Our vision is to revolutionize the property market with technology-driven solutions.
+            </p>
+        </div>
+
+        <!-- Core Values Section -->
+        <div class="mb-10">
+            <h2 class="text-2xl font-semibold text-green-700 mb-3">Our Core Values</h2>
+            <ul class="list-disc pl-5 text-gray-700">
+                <li><b class="text-green-700">Integrity:</b> We prioritize honesty and transparency in all transactions.</li>
+                <li><b class="text-green-700">Customer-Centric:</b> Your satisfaction is at the heart of everything we do.</li>
+                <li><b class="text-green-700">Innovation:</b> We continuously innovate to offer the best solutions.</li>
+            </ul>
+        </div>
+
+        <!-- Features Section -->
+        <div class="mb-10">
+            <h2 class="text-2xl font-semibold text-green-700 mb-5">Why Choose Us?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-6 bg-green-100 rounded-lg text-center shadow-md">
+                    <i class="fas fa-home text-4xl text-green-700 mb-3"></i>
+                    <h3 class="text-lg font-semibold text-green-700">Wide Property Listings</h3>
+                    <p class="text-gray-700">Explore thousands of properties that match your preferences and budget.</p>
+                </div>
+                <div class="p-6 bg-green-100 rounded-lg text-center shadow-md">
+                    <i class="fas fa-user-tie text-4xl text-green-700 mb-3"></i>
+                    <h3 class="text-lg font-semibold text-green-700">Direct Contact</h3>
+                    <p class="text-gray-700">If interested, get in contact with sellers straight away.</p>
+                </div>
+                <div class="p-6 bg-green-100 rounded-lg text-center shadow-md">
+                    <i class="fas fa-lock text-4xl text-green-700 mb-3"></i>
+                    <h3 class="text-lg font-semibold text-green-700">Secure Transactions</h3>
+                    <p class="text-gray-700">Enjoy peace of mind with secure and verified property dealings.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-10">
+            <a href="{% url 'contact' %}" class="bg-green-700 text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-md hover:bg-green-800 transition">Contact Us Today</a>
+        </div>
+    </div>
+</body>
+</html>

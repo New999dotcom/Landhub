@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Product Review</title>
+    <style>
+        :root {
+            --primary-green: #1b5e20; /* Dark green */
+            --light-green: #4caf50; /* Medium green */
+            --background-green: #e8f5e9; /* Very light green */
+            --white: #ffffff;
+            --text-dark: #333333;
+            --form-bg: rgba(255, 255, 255, 0.9); /* Semi-transparent white for form */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-green);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+            /* Replaced forest with a new background image for reviews */
+            background-image: url("https://www.shutterstock.com/image-photo/user-give-rating-service-experience-600nw-1970905817.jpg");
+            background-color: rgba(255, 255, 255, 0.8);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .container {
+            background-color: var(--form-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid var(--light-green);
+            position: relative;
+            z-index: 1;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary-green);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-green);
+        }
+
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            color: #b0bec5;
+            font-size: 30px;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+            margin: 0 5px;
+        }
+
+        .star-rating label:hover,
+        .star-rating input:checked ~ label,
+        .star-rating label:hover ~ label {
+            color: var(--light-green);
+            transform: scale(1.1);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--light-green);
+            border-radius: 6px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 10px rgba(27, 94, 32, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--light-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-btn:disabled {
+            background-color: #81c784;
+            cursor: not-allowed;
+        }
+
+        #message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background-color: rgba(200, 230, 201, 0.9);
+            color: var(--primary-green);
+            border: 1px solid var(--light-green);
+        }
+
+        .error {
+            background-color: rgba(255, 205, 210, 0.9);
+            color: #d32f2f;
+            border: 1px solid #ef5350;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-header">
+            <h1>Submit Your Product Review</h1>
+        </div>
+        
+        <form id="reviewForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <div class="form-label">Rating</div>
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5" required>
+                    <label for="star5">★</label>
+                    <input type="radio" id="star4" name="rating" value="4">
+                    <label for="star4">★</label>
+                    <input type="radio" id="star3" name="rating" value="3">
+                    <label for="star3">★</label>
+                    <input type="radio" id="star2" name="rating" value="2">
+                    <label for="star2">★</label>
+                    <input type="radio" id="star1" name="rating" value="1">
+                    <label for="star1">★</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="review" class="form-label">Your Review</label>
+                <textarea id="review" name="review" required placeholder="Share your experience..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">Submit Review</button>
+            
+            <div id="message"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const button = form.querySelector('.submit-btn');
+            const message = document.getElementById('message');
+            
+            button.disabled = true;
+            button.textContent = 'Submitting...';
+            message.style.display = 'none';
+            
+            fetch("{% url 'buyer_review' %}", {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                message.textContent = data.message;
+                message.className = data.success ? 'success' : 'error';
+                message.style.display = 'block';
+                
+                if (data.success) {
+                    form.reset();
+                    setTimeout(() => {
+                        window.location.href = "{% url 'dashboard' %}";
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                message.textContent = 'An error occurred. Please try again.';
+                message.className = 'error';
+                message.style.display = 'block';
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.textContent = 'Submit Review';
+            });
+        });
+    </script>
+</body>
+</html>

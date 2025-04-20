@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<a href="{% url 'review'%}" class="fixed bottom-6 right-6 bg-green-600 text-white py-3 px-6 rounded-full font-semibold shadow-lg hover:bg-green-500 transition transform hover:scale-110">
+    ⭐ Rate Us
+</a>
+
+<body class="bg-gradient-to-br from-green-50 to-green-100">
+    <!-- Header -->
+    <header class="bg-green-800 text-white py-6 shadow-xl">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-3 animate-fade-in-down">Welcome to PrimeLand Hub</h1>
+            <p class="text-lg text-green-200">Your one-stop solution for buying, selling, and renting properties</p>
+        </div>
+    </header>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-green-600 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex space-x-4">
+                    <a href="/index/" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">Home</a>
+                    <a href="/profile/" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">My Profile</a>
+                    <a href="/property/" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">Add Listing</a>
+                    <a href="/viewproperty/" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">My Properties</a>
+                    <a href="/viewproperties/" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">All Properties</a>
+                    <a href="/message/" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">Contact us</a>
+                    <a href="/forum/" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">Community forum</a>
+                    <a href="/forum/notifications/" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">Notifications</a>
+                    <div class="relative">
+                        <button id="dropdownBtn" class="text-white px-3 py-2 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">
+                            More ▼
+                        </button>
+                        <div id="dropdownMenu" class="absolute hidden bg-green-600 min-w-[160px] rounded-md shadow-xl mt-1 z-50">
+                            <a href="/chatbot/" class="block px-4 py-3 text-white hover:bg-green-500 transition-colors duration-300">Chatbot</a>
+                            {% if request.session.user_type == 'seller' %}
+                                <a href="{% url 'seller_chat_list' %}" class="block px-4 py-3 text-white hover:bg-green-500 transition-colors duration-300">View Chats</a>
+                            {% endif %}
+                            
+                            <a href="/predict_price/" class="block px-4 py-3 text-white hover:bg-green-500 transition-colors duration-300">Price Tracker</a>
+                            <a href="/user_replied/" class="block px-4 py-3 text-white hover:bg-green-500 transition-colors duration-300">Inbox</a>
+                        </div>
+                    </div>
+                </div>
+                <a href="/login/" class="text-white px-4 py-2 bg-green-700 rounded-md hover:bg-green-500 transition-colors duration-300 font-semibold">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        document.getElementById("dropdownBtn").addEventListener("click", function() {
+            let menu = document.getElementById("dropdownMenu");
+            menu.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", function(event) {
+            let btn = document.getElementById("dropdownBtn");
+            let menu = document.getElementById("dropdownMenu");
+            if (!btn.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add("hidden");
+            }
+        });
+    </script>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="text-3xl font-bold text-green-800 mb-8 border-l-4 border-green-600 pl-4">Prime Property Highlights</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-green-700 mb-3">Luxury Apartments</h3>
+                    <p class="text-gray-600 leading-relaxed">Explore our curated selection of luxury apartments located in prime areas, offering top-notch amenities and stunning views.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-green-700 mb-3">Commercial Spaces</h3>
+                    <p class="text-gray-600 leading-relaxed">Find the perfect commercial property for your business, from retail stores to office buildings in bustling locations.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-green-700 mb-3">Family Homes</h3>
+                    <p class="text-gray-600 leading-relaxed">Discover spacious and affordable family homes in peaceful neighborhoods, ideal for creating lasting memories.</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="GET" action="{% url 'property_search' %}" class="bg-white p-6 rounded-xl shadow-lg flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4" onsubmit="return validateSearch()">
+            <!-- Location Input -->
+            <input type="text" id="query" name="query" placeholder="Search by location, city, or zip" 
+                   class="flex-1 px-4 py-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none w-full md:w-auto">
+
+            <!-- Min Price Input -->
+            <input type="number" id="min_price" name="min_price" placeholder="Min Price (₹)" 
+                   class="px-4 py-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none w-full md:w-auto">
+
+            <!-- Max Price Input -->
+            <input type="number" id="max_price" name="max_price" placeholder="Max Price (₹)" 
+                   class="px-4 py-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none w-full md:w-auto">
+
+            <!-- Buttons Container -->
+            <div class="flex space-x-2">
+                <button type="submit" 
+                        class="bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-500 transition duration-300 transform hover:scale-105">
+                    🔍 Search
+                </button>
+                <button type="button" onclick="resetForm()" 
+                        class="bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-500 transition duration-300 transform hover:scale-105">
+                    🔄 Reset
+                </button>
+            </div>
+        </form>
+
+        <!-- Alert Box -->
+        <div id="alertBox" class="hidden bg-red-500 text-white p-3 rounded-lg mt-4 text-center">
+            ⚠️ Please enter at least one search field before searching!
+        </div>
+
+        <script>
+            function resetForm() {
+                document.getElementById('query').value = "";
+                document.getElementById('min_price').value = "";
+                document.getElementById('max_price').value = "";
+                document.getElementById('alertBox').classList.add('hidden');
+            }
+
+            function validateSearch() {
+                var query = document.getElementById('query').value.trim();
+                var minPrice = document.getElementById('min_price').value.trim();
+                var maxPrice = document.getElementById('max_price').value.trim();
+
+                if (!query && !minPrice && !maxPrice) {
+                    document.getElementById('alertBox').classList.remove('hidden');
+                    return false;
+                }
+                return true;
+            }
+        </script>
+
+        <!-- Hybrid Recommended Properties Section -->
+        <h2 class="text-3xl font-bold text-green-800 mb-6 animate-fade-in">🏡  Recommended For you</h2>
+
+        <!-- Recommendation Container -->
+        <div id="recommendation-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div id="loading" class="space-y-4">
+                <div class="animate-pulse bg-gray-300 h-40 w-full rounded-lg"></div>
+                <div class="animate-pulse bg-gray-300 h-6 w-3/4 rounded-lg"></div>
+                <div class="animate-pulse bg-gray-300 h-4 w-1/2 rounded-lg"></div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", fetchHybridRecommendations);
+
+            async function fetchHybridRecommendations() {
+                let loadingElement = document.getElementById("loading");
+                let container = document.getElementById("recommendation-container");
+
+                try {
+                    const response = await fetch("/api/hybrid-recommendations/");
+                    if (!response.ok) throw new Error("Failed to fetch recommendations.");
+                    
+                    const data = await response.json();
+                    loadingElement.style.display = "none";
+                    displayRecommendations(data);
+                } catch (error) {
+                    console.error("Error:", error);
+                    loadingElement.innerHTML = "<p class='text-red-600 text-center'>⚠️ Failed to load recommendations.</p>";
+                }
+            }
+
+            function displayRecommendations(data) {
+                const container = document.getElementById("recommendation-container");
+                container.innerHTML = "";
+
+                if (!data.recommendations || data.recommendations.length === 0) {
+                    container.innerHTML = "<p class='text-gray-600 text-center'>No recommendations available.</p>";
+                    return;
+                }
+
+                data.recommendations.forEach((property, index) => {
+                    let propertyCard = document.createElement("div");
+                    propertyCard.className = "bg-white rounded-lg shadow-md p-6 transition-transform transform hover:scale-105 hover:shadow-lg fade-in-animation";
+                    propertyCard.style.animationDelay = `${index * 0.1}s`;
+
+                    propertyCard.innerHTML = `
+                        <img src="${property.image}" alt="${property.name}" class="w-full h-40 object-cover rounded-lg">
+                        <h3 class="text-xl font-bold text-green-700 mt-4">${property.name}</h3>
+                        <p class="text-gray-600">${property.place}</p>
+                        <p class="text-gray-800 font-semibold">₹${property.price.toLocaleString('en-IN')}</p>
+                        <a href="/property_detail/${property.id}/" class="block bg-green-600 text-white text-center py-2 mt-4 rounded-lg hover:bg-green-500 transition-transform transform hover:scale-105">
+                            View Details
+                        </a>
+                    `;
+
+                    container.appendChild(propertyCard);
+                });
+            }
+        </script>
+
+        <style>
+            .fade-in-animation {
+                opacity: 0;
+                transform: translateY(10px);
+                animation: fadeIn 0.5s forwards ease-out;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        </style>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-green-800 text-white py-8 mt-12 shadow-2xl">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-green-200">© 2025 PrimeLand Hub | All Rights Reserved</p>
+        </div>
+    </footer>
+</body>
+</html>

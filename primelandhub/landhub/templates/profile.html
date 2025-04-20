@@ -1,0 +1,360 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #1e3d58;
+            color: white;
+            padding: 20px 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 32px;
+        }
+        .profile-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .profile-info {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .profile-info h2 {
+            font-size: 28px;
+            color: #1e3d58;
+        }
+        .profile-info p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .profile-info .profile-detail {
+            margin: 10px 0;
+        }
+        .profile-img {
+            flex: 0 0 200px;
+            text-align: center;
+        }
+        .profile-img img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-info button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 30%;
+            margin-top: 20px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        .profile-info button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        .delete-button {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 30%;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .delete-button:hover {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        .edit-link {
+            color: #1e3d58;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .edit-link:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            background-color: #1e3d58;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 400px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .confirm-btn, .cancel-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 48%;
+        }
+        .confirm-btn {
+            background-color: #ff4b2b;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .confirm-btn:hover {
+            background-color: #ff416c;
+        }
+        .cancel-btn {
+            background-color: #4CAF50;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .cancel-btn:hover {
+            background-color: #45a049;
+        }
+        /* Enhanced Wishlist Styles */
+        .wishlist-section {
+            width: 100%;
+            margin-top: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .wishlist-section h2 {
+            font-size: 28px;
+            color: #1e3d58;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #1e3d58;
+            padding-bottom: 10px;
+        }
+        .wishlist-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .wishlist-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        .wishlist-item img {
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 20px;
+            border: 1px solid #ddd;
+        }
+        .wishlist-item .info {
+            flex: 1;
+        }
+        .wishlist-item a {
+            color: #1e3d58;
+            font-weight: 600;
+            font-size: 18px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .wishlist-item a:hover {
+            color: #4CAF50;
+            text-decoration: underline;
+        }
+        .wishlist-item .details {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .wishlist-item .message {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        .remove-btn {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .remove-btn:hover {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome!</h1>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-info">
+            {% if user %}
+                <h2>{{ user.name }}'s Profile</h2>
+                <p class="profile-detail"><strong>Email:</strong> {{ user.email }}</p>
+                <p class="profile-detail"><strong>Phone Number:</strong> {{ user.phone }}</p>
+                <p class="profile-detail"><strong>Age:</strong> {{ user.age }}</p>
+                <p class="profile-detail"><strong>Location:</strong> {{ user.place }}</p>
+                <p class="profile-detail"><strong>Gender:</strong> {{ user.gend }}</p>
+
+                <button onclick="window.location.href='/editprofile/'">Edit Profile</button>
+                <button class="back-button" onclick="window.location.href='/home'">Back</button>
+                <form method="POST" action="{% url 'deleteprofile' %}" onsubmit="return confirm('Are you sure you want to delete your profile?')">
+                    {% csrf_token %}
+                    <button class="delete-button" type="submit">Delete Profile</button>
+                </form>
+            {% else %}
+                <p>Please <a href="/login/" class="edit-link">log in</a> to view your profile.</p>
+            {% endif %}
+        </div>
+
+        <div class="profile-img">
+            {% if user and user.image %}
+                <img src="{{ user.image.url }}" alt="Profile Image" class="rounded-full w-32 h-32 object-cover border border-gray-300 shadow-md">
+            {% else %}
+                <img src="{% static 'img/default-profileimage.jpg' %}" alt="Default Profile Image" class="rounded-full w-32 h-32 object-cover border border-gray-300 shadow-md">
+            {% endif %}
+        </div>
+
+        {% if user %}
+            <div class="wishlist-section">
+                <h2>Your Wishlist</h2>
+                {% if wishlist %}
+                    {% for item in wishlist %}
+                        <div class="wishlist-item" id="wishlist-item-{{ item.property.id }}">
+                            {% if item.property.image %}
+                                <img src="{{ item.property.image.url }}" alt="{{ item.property.name }}">
+                            {% else %}
+                                <img src="{% static 'img/default-property.jpg' %}" alt="Default Property Image">
+                            {% endif %}
+                            <div class="info">
+                                <a href="{% url 'property_detail' item.property.id %}">{{ item.property.name }}</a>
+                                <div class="details">{{ item.property.place }} - ${{ item.property.price }}</div>
+                                {% if item.message %}
+                                    <div class="message">"{{ item.message }}"</div>
+                                {% endif %}
+                            </div>
+                            <button class="remove-btn" data-property-id="{{ item.property.id }}" onclick="removeFromWishlist(this)">Remove</button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>You haven't added any properties to your wishlist yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <p>© 2025 Primeland Hub All Rights Reserved.</p>
+    </div>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <h2>Are you sure you want to delete your profile?</h2>
+            <p>This action cannot be undone.</p>
+            <button class="confirm-btn" onclick="deleteProfile()">Confirm</button>
+            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete() {
+            document.getElementById("deleteModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("deleteModal").style.display = "none";
+        }
+
+        function deleteProfile() {
+            window.location.href = '/index';
+        }
+
+        function removeFromWishlist(button) {
+            const propertyId = button.getAttribute("data-property-id");
+            const formData = new FormData();
+            formData.append("property_id", propertyId);
+            formData.append("action", "remove");
+            formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+            fetch("{% url 'wishlist_action' %}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success" && data.action === "removed") {
+                    document.getElementById(`wishlist-item-${propertyId}`).remove();
+                } else if (data.status === "error") {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>

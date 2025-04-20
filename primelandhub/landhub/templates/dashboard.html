@@ -1,0 +1,645 @@
+{% load static humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyer Dashboard - PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-green-50 via-white to-green-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-700 to-green-900 text-white py-8 shadow-2xl">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-2 animate-slide-in">Buyer Dashboard</h1>
+            <p class="text-lg md:text-xl text-green-100">Discover Your Dream Property with PrimeLand Hub</p>
+        </div>
+    </header>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-green-600 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex space-x-2 md:space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 font-medium text-sm md:text-base">Dashboard</a>
+                    <a href="{% url 'buyerprofile' %}" class="text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 font-medium text-sm md:text-base">Profile</a>
+                    <a href="{% url 'purchase_history' %}" class="text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 font-medium text-sm md:text-base">Purchases</a>
+                    <a href="{% url 'viewpropertiesbuyer' %}" class="text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 font-medium text-sm md:text-base">Properties</a>
+                    <a href="{% url 'buyer_message' %}" class="text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 font-medium text-sm md:text-base">Contact</a>
+                    <div class="relative">
+                        <button id="dropdownBtn" class="text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-all duration-300 font-medium text-sm md:text-base flex items-center">
+                            More <i class="fas fa-chevron-down ml-1"></i>
+                        </button>
+                        <div id="dropdownMenu" class="absolute hidden bg-green-600 min-w-[160px] rounded-lg shadow-xl mt-1 z-50">
+                            <a href="{% url 'chatbot2' %}" class="block px-4 py-2 text-white hover:bg-green-700 transition-all duration-300 text-sm md:text-base">Chatbot</a>
+                            <a href="{% url 'buyer_chat_list' %}" class="block px-4 py-2 text-white hover:bg-green-700 transition-all duration-300 text-sm md:text-base">Chatlist</a>
+                            <a href="{% url 'predictprice buyers' %}" class="block px-4 py-2 text-white hover:bg-green-700 transition-all duration-300 text-sm md:text-base">Price Tracker</a>
+                            <a href="{% url 'buyer_replied' %}" class="block px-4 py-2 text-white hover:bg-green-700 transition-all duration-300 text-sm md:text-base">Inbox</a>
+                        </div>
+                    </div>
+                </div>
+                <a href="{% url 'Login_buyer' %}" class="text-white px-4 py-2 bg-green-700 rounded-lg hover:bg-green-800 transition-all duration-300 font-medium text-sm md:text-base">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 space-y-12">
+        <!-- Welcome Section -->
+        <section class="animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-4">Welcome, {{ buyer.name }}!</h2>
+                <p class="text-gray-600 text-sm md:text-base">Your personalized hub to find, compare, and purchase properties seamlessly.</p>
+            </div>
+        </section>
+
+        <!-- Search Bar -->
+        <section class="sticky top-16 z-40 bg-white rounded-2xl shadow-xl p-6 animate-slide-up" id="searchSection">
+            <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
+                <i class="fas fa-search mr-2"></i> Find Your Next Property
+            </h2>
+            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                <input type="text" id="query" name="query" placeholder="Search by location, city, or zip" 
+                       class="flex-1 px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none text-sm md:text-base">
+                <input type="number" id="min_price" name="min_price" placeholder="Min Price (₹)" 
+                       class="px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none w-full md:w-40 text-sm md:text-base">
+                <input type="number" id="max_price" name="max_price" placeholder="Max Price (₹)" 
+                       class="px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none w-full md:w-40 text-sm md:text-base">
+                <div class="flex space-x-2">
+                    <button type="button" onclick="searchProperties()" 
+                            class="bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-all duration-300 flex items-center text-sm md:text-base">
+                        <i class="fas fa-search mr-2"></i> Search
+                    </button>
+                    <button type="button" onclick="resetSearchForm()" 
+                            class="bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-300 flex items-center text-sm md:text-base">
+                        <i class="fas fa-sync-alt mr-2"></i> Reset
+                    </button>
+                </div>
+            </div>
+            <div id="alertBox" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mt-4">
+                <p><i class="fas fa-exclamation-circle mr-2"></i> Please enter at least one search field!</p>
+            </div>
+            <div id="searchResults" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"></div>
+        </section>
+
+        <!-- Recommended Properties -->
+        <section class="animate-fade-in">
+            <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
+                <i class="fas fa-home mr-2"></i> Recommended For You
+            </h2>
+            <div id="recommendation-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for property in recommended_properties %}
+                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+                        <img src="{{ property.image.url }}" alt="{{ property.name }}" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-green-700 mb-2">{{ property.name }}</h3>
+                            <p class="text-gray-600 text-sm">{{ property.location }}</p>
+                            <p class="text-gray-800 font-semibold text-lg mt-2">₹{{ property.price|intcomma }}</p>
+                            <a href="{% url 'property_detailbuyer' property.id %}" 
+                               class="block bg-green-600 text-white text-center py-2 mt-4 rounded-lg hover:bg-green-700 transition-all duration-300 text-sm md:text-base">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-gray-500 text-center col-span-full py-4">No recommendations available</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="animate-slide-up">
+            <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
+                <i class="fas fa-chart-line mr-2"></i> Quick Stats
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-green-700 mb-2">Total Searches</h3>
+                    <p id="totalSearches" class="text-2xl font-bold text-gray-800">0</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-green-700 mb-2">Properties Found</h3>
+                    <p id="propertiesFound" class="text-2xl font-bold text-gray-800">0</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-green-700 mb-2">Average Price</h3>
+                    <p id="avgPrice" class="text-2xl font-bold text-gray-800">N/A</p>
+                </div>
+            </div>
+            <div class="mt-6 text-center">
+                <button onclick="clearStats()" 
+                        class="bg-red-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-red-700 transition-all duration-300 flex items-center mx-auto text-sm md:text-base">
+                    <i class="fas fa-trash-alt mr-2"></i> Clear Stats
+                </button>
+            </div>
+        </section>
+
+        <!-- Mortgage Calculator -->
+        <section class="animate-fade-in">
+            <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
+                <i class="fas fa-calculator mr-2"></i> Mortgage Calculator
+            </h2>
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <input type="number" id="propertyPrice" placeholder="Property Price (₹)" 
+                           class="px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none text-sm md:text-base">
+                    <input type="number" id="downPayment" placeholder="Down Payment (₹)" 
+                           class="px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none text-sm md:text-base">
+                    <input type="number" id="interestRate" placeholder="Interest Rate (%)" step="0.1" 
+                           class="px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none text-sm md:text-base">
+                    <input type="number" id="loanTerm" placeholder="Loan Term (Years)" 
+                           class="px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none text-sm md:text-base">
+                </div>
+                <div class="mt-6 flex space-x-4">
+                    <button onclick="calculateMortgage()" 
+                            class="bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-all duration-300 flex items-center text-sm md:text-base">
+                        <i class="fas fa-calculator mr-2"></i> Calculate
+                    </button>
+                    <button onclick="resetMortgage()" 
+                            class="bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-300 flex items-center text-sm md:text-base">
+                        <i class="fas fa-sync-alt mr-2"></i> Reset
+                    </button>
+                </div>
+                <p id="mortgageResult" class="mt-4 text-gray-800 font-semibold text-sm md:text-base"></p>
+            </div>
+        </section>
+
+        <!-- Property Comparison Tool -->
+        <section class="animate-slide-up">
+            <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
+                <i class="fas fa-balance-scale mr-2"></i> Property Comparison Tool
+            </h2>
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <!-- Search and Filter -->
+                <div class="mb-6">
+                    <input type="text" id="propertySearch" placeholder="Search properties by name, location, or type..." 
+                           class="w-full px-4 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-400 outline-none text-sm md:text-base">
+                    <div id="propertyList" class="max-h-64 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        {% for property in properties %}
+                            <div class="property-card bg-green-50 p-4 rounded-lg shadow-md cursor-move hover:bg-green-100 transition-all duration-300" 
+                                 draggable="true" data-id="{{ property.id }}" 
+                                 ondragstart="drag(event)">
+                                <h3 class="text-lg font-semibold text-green-700">{{ property.name }}</h3>
+                                <p class="text-gray-600 text-sm">₹{{ property.price|intcomma }} ({{ property.prop }})</p>
+                                <p class="text-sm text-gray-500">{{ property.location|default:'N/A' }}</p>
+                            </div>
+                        {% empty %}
+                            <p class="text-gray-500 col-span-full text-center py-4">No properties available</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Drop Zones -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                    <div id="dropZone1" class="drop-zone bg-gray-50 p-6 rounded-lg shadow-md border-2 border-dashed border-green-300 text-center hover:border-green-500 transition-all duration-300" 
+                         ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <p class="text-gray-500 text-sm">Drag a property here</p>
+                    </div>
+                    <div id="dropZone2" class="drop-zone bg-gray-50 p-6 rounded-lg shadow-md border-2 border-dashed border-green-300 text-center hover:border-green-500 transition-all duration-300" 
+                         ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <p class="text-gray-500 text-sm">Drag a property here</p>
+                    </div>
+                    <div id="dropZone3" class="drop-zone bg-gray-50 p-6 rounded-lg shadow-md border-2 border-dashed border-green-300 text-center hover:border-green-500 transition-all duration-300" 
+                         ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <p class="text-gray-500 text-sm">Drag a property here</p>
+                    </div>
+                </div>
+
+                <!-- Comparison Filters -->
+                <div class="mb-6 bg-green-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold text-green-800 mb-3">Comparison Options</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="showPrice" checked class="mr-2" onchange="updateComparison()">
+                            <span class="text-gray-700">Price</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="showArea" checked class="mr-2" onchange="updateComparison()">
+                            <span class="text-gray-700">Area (sqft)</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="showLocation" checked class="mr-2" onchange="updateComparison()">
+                            <span class="text-gray-700">Location</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="showBedBath" class="mr-2" onchange="updateComparison()">
+                            <span class="text-gray-700">Bed/Bath</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="showFeatures" class="mr-2" onchange="updateComparison()">
+                            <span class="text-gray-700">Features</span>
+                        </label>
+                        <label class="flex items-center text-sm">
+                            <input type="checkbox" id="showType" checked class="mr-2" onchange="updateComparison()">
+                            <span class="text-gray-700">Type</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Comparison Results -->
+                <div id="comparisonResult" class="grid grid-cols-1 sm:grid-cols-3 gap-6"></div>
+
+                <!-- Reset Button -->
+                <button onclick="resetComparison()" 
+                        class="mt-6 bg-gray-500 text-white py-2 px-6 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-300 flex items-center mx-auto text-sm md:text-base">
+                    <i class="fas fa-sync-alt mr-2"></i> Reset Comparison
+                </button>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="animate-fade-in">
+            <h2 class="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
+                <i class="fas fa-history mr-2"></i> Recent Activity
+            </h2>
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-semibold text-gray-700">Your Recent Searches</span>
+                    <button onclick="clearRecentActivity()" 
+                            class="bg-red-600 text-white py-1 px-4 rounded-lg font-semibold hover:bg-red-700 transition-all duration-300 text-sm md:text-base">
+                        Clear All
+                    </button>
+                </div>
+                <div id="recentActivity" class="text-gray-500 text-sm md:text-base">
+                    <p>No recent searches yet.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Rate Us Button -->
+    <a href="{% url 'buyer_review' %}" 
+       class="fixed bottom-6 right-6 bg-green-600 text-white py-3 px-4 rounded-full font-semibold shadow-lg hover:bg-green-700 transition-all duration-300 flex items-center text-sm md:text-base">
+        <i class="fas fa-star mr-2"></i> Rate Us
+    </a>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-green-700 to-green-900 text-white py-8 shadow-2xl">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-green-100 text-sm md:text-base">© 2025 PrimeLand Hub | All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Load persistent data from localStorage
+        let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+        let totalSearches = parseInt(localStorage.getItem('totalSearches')) || 0;
+        let totalPrice = parseFloat(localStorage.getItem('totalPrice')) || 0;
+        let propertiesFound = parseInt(localStorage.getItem('propertiesFound')) || 0;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateQuickStats();
+            updateRecentActivity();
+        });
+
+        // Dropdown Menu
+        document.getElementById("dropdownBtn").addEventListener("click", function() {
+            let menu = document.getElementById("dropdownMenu");
+            menu.classList.toggle("hidden");
+        });
+        document.addEventListener("click", function(event) {
+            let btn = document.getElementById("dropdownBtn");
+            let menu = document.getElementById("dropdownMenu");
+            if (!btn.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add("hidden");
+            }
+        });
+
+        // Search Functions
+        function searchProperties() {
+            const query = document.getElementById('query').value.trim();
+            const minPrice = document.getElementById('min_price').value.trim();
+            const maxPrice = document.getElementById('max_price').value.trim();
+            const alertBox = document.getElementById('alertBox');
+            const searchResults = document.getElementById('searchResults');
+
+            if (!query && !minPrice && !maxPrice) {
+                alertBox.classList.remove('hidden');
+                return;
+            }
+            alertBox.classList.add('hidden');
+
+            const params = new URLSearchParams();
+            if (query) params.append('query', query);
+            if (minPrice) params.append('min_price', minPrice);
+            if (maxPrice) params.append('max_price', maxPrice);
+
+            fetch(`/api/property-search/?${params.toString()}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    if (data.properties.length === 0) {
+                        searchResults.innerHTML = '<p class="text-gray-500 text-center col-span-full py-4">No properties found.</p>';
+                    } else {
+                        data.properties.forEach(prop => {
+                            const detailUrl = "{% url 'property_detailbuyer' 0 %}".replace('0', prop.id);
+                            const card = document.createElement('div');
+                            card.className = 'bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2';
+                            card.innerHTML = `
+                                ${prop.image ? 
+                                    `<img src="${prop.image}" alt="${prop.name}" class="w-full h-48 object-cover rounded-lg mb-4">` :
+                                    `<div class="w-full h-48 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
+                                        <span class="text-gray-500 text-sm">No Image Available</span>
+                                    </div>`}
+                                <h3 class="text-xl font-bold text-green-700 mb-2">${prop.name}</h3>
+                                <p class="text-gray-600 text-sm">${prop.location}</p>
+                                <p class="text-gray-800 font-semibold text-lg mt-2">₹${prop.price.toLocaleString()}</p>
+                                <a href="${detailUrl}" 
+                                   class="block bg-green-600 text-white text-center py-2 mt-4 rounded-lg hover:bg-green-700 transition-all duration-300 text-sm md:text-base">
+                                    View Details
+                                </a>
+                            `;
+                            searchResults.appendChild(card);
+                        });
+                    }
+
+                    // Update Recent Activity
+                    const timestamp = new Date().toLocaleString();
+                    recentSearches.unshift({
+                        query: query || 'N/A',
+                        minPrice: minPrice || 'N/A',
+                        maxPrice: maxPrice || 'N/A',
+                        resultsCount: data.properties.length,
+                        timestamp: timestamp
+                    });
+                    recentSearches = recentSearches.slice(0, 5);
+                    updateRecentActivity();
+                    saveToLocalStorage();
+
+                    // Update Quick Stats
+                    totalSearches++;
+                    propertiesFound += data.properties.length;
+                    if (data.properties.length > 0) {
+                        const searchTotalPrice = data.properties.reduce((sum, prop) => sum + prop.price, 0);
+                        totalPrice += searchTotalPrice;
+                    }
+                    updateQuickStats();
+                    saveToLocalStorage();
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    searchResults.innerHTML = '<p class="text-red-500 text-center col-span-full py-4">Error loading properties: ' + error.message + '</p>';
+                });
+        }
+
+        function resetSearchForm() {
+            document.getElementById('query').value = '';
+            document.getElementById('min_price').value = '';
+            document.getElementById('max_price').value = '';
+            document.getElementById('alertBox').classList.add('hidden');
+            document.getElementById('searchResults').innerHTML = '';
+        }
+
+        function updateRecentActivity() {
+            const recentActivityDiv = document.getElementById('recentActivity');
+            recentActivityDiv.innerHTML = '';
+            if (recentSearches.length === 0) {
+                recentActivityDiv.innerHTML = '<p class="text-gray-500 text-sm md:text-base">No recent searches yet.</p>';
+            } else {
+                const ul = document.createElement('ul');
+                ul.className = 'space-y-4';
+                recentSearches.forEach((search, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center border-b border-green-100 pb-2';
+                    li.innerHTML = `
+                        <span class="text-gray-600 text-sm md:text-base">Searched "${search.query}" (Range: ${search.minPrice} - ${search.maxPrice}, Found: ${search.resultsCount})</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-green-600 text-sm">${search.timestamp}</span>
+                            <button onclick="deleteActivity(${index})" class="text-red-500 hover:text-red-700 font-semibold text-sm transition-all duration-200">
+                                Delete
+                            </button>
+                        </div>
+                    `;
+                    ul.appendChild(li);
+                });
+                recentActivityDiv.appendChild(ul);
+            }
+        }
+
+        function updateQuickStats() {
+            document.getElementById('totalSearches').textContent = totalSearches.toLocaleString();
+            document.getElementById('propertiesFound').textContent = propertiesFound.toLocaleString();
+            document.getElementById('avgPrice').textContent = 
+                propertiesFound > 0 ? `₹${Math.round(totalPrice / propertiesFound).toLocaleString()}` : 'N/A';
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+                localStorage.setItem('totalSearches', totalSearches);
+                localStorage.setItem('totalPrice', totalPrice);
+                localStorage.setItem('propertiesFound', propertiesFound);
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
+
+        function deleteActivity(index) {
+            if (confirm('Are you sure you want to delete this search entry?')) {
+                recentSearches.splice(index, 1);
+                updateRecentActivity();
+                saveToLocalStorage();
+            }
+        }
+
+        function clearRecentActivity() {
+            if (confirm('Are you sure you want to clear all recent activity?')) {
+                recentSearches = [];
+                updateRecentActivity();
+                saveToLocalStorage();
+            }
+        }
+
+        function clearStats() {
+            if (confirm('Are you sure you want to clear all stats? This will also reset recent activity.')) {
+                recentSearches = [];
+                totalSearches = 0;
+                totalPrice = 0;
+                propertiesFound = 0;
+                updateQuickStats();
+                updateRecentActivity();
+                saveToLocalStorage();
+            }
+        }
+
+        // Mortgage Calculator
+        function calculateMortgage() {
+            let price = parseFloat(document.getElementById('propertyPrice').value) || 0;
+            let down = parseFloat(document.getElementById('downPayment').value) || 0;
+            let rate = parseFloat(document.getElementById('interestRate').value) / 100 / 12 || 0;
+            let term = parseFloat(document.getElementById('loanTerm').value) * 12 || 0;
+            let loanAmount = price - down;
+
+            if (loanAmount <= 0 || term <= 0 || rate <= 0) {
+                document.getElementById('mortgageResult').innerText = "Please enter valid values.";
+                return;
+            }
+
+            let monthlyPayment = (loanAmount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
+            document.getElementById('mortgageResult').innerText = `Monthly Payment: ₹${monthlyPayment.toFixed(2)}`;
+        }
+
+        function resetMortgage() {
+            document.getElementById('propertyPrice').value = '';
+            document.getElementById('downPayment').value = '';
+            document.getElementById('interestRate').value = '';
+            document.getElementById('loanTerm').value = '';
+            document.getElementById('mortgageResult').innerText = '';
+        }
+
+        // Property Comparison
+        const propertyData = {
+            {% for property in properties %}
+            "{{ property.id }}": {
+                name: "{{ property.name|escapejs }}",
+                price: {{ property.price }},
+                area_sqft: {% if property.area_sqft %}{{ property.area_sqft }}{% else %}null{% endif %},
+                location: "{{ property.location|default_if_none:''|escapejs }}",
+                bedrooms: {% if property.bedrooms %}{{ property.bedrooms }}{% else %}null{% endif %},
+                bathrooms: {% if property.bathrooms %}{{ property.bathrooms }}{% else %}null{% endif %},
+                propertytype: "{{ property.propertytype|escapejs }}",
+                prop: "{{ property.prop|escapejs }}",
+                is_furnished: {{ property.is_furnished|lower }},
+                parking_space: {{ property.parking_space|lower }},
+                description: "{{ property.description|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.dataset.id);
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const propertyId = event.dataTransfer.getData("text");
+            const dropZone = event.target.closest('.drop-zone');
+            if (dropZone && propertyId && propertyData[propertyId]) {
+                dropZone.dataset.propertyId = propertyId;
+                updateComparison();
+            }
+        }
+
+        document.getElementById('propertySearch').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const propertyCards = document.querySelectorAll('.property-card');
+            propertyCards.forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                const price = card.querySelector('p:nth-child(2)').textContent.toLowerCase();
+                const location = card.querySelector('p:nth-child(3)').textContent.toLowerCase();
+                card.style.display = name.includes(searchTerm) || price.includes(searchTerm) || location.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        function updateComparison() {
+            const result = document.getElementById('comparisonResult');
+            const dropZones = [
+                document.getElementById('dropZone1'),
+                document.getElementById('dropZone2'),
+                document.getElementById('dropZone3')
+            ];
+            
+            const options = {
+                showPrice: document.getElementById('showPrice').checked,
+                showArea: document.getElementById('showArea').checked,
+                showLocation: document.getElementById('showLocation').checked,
+                showBedBath: document.getElementById('showBedBath').checked,
+                showFeatures: document.getElementById('showFeatures').checked,
+                showType: document.getElementById('showType').checked
+            };
+
+            result.innerHTML = '';
+
+            dropZones.forEach((zone, index) => {
+                let html = '<div class="bg-gray-50 p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl">';
+                const propertyId = zone.dataset.propertyId;
+
+                if (propertyId && propertyData[propertyId]) {
+                    const prop = propertyData[propertyId];
+                    html += `<h3 class="text-lg font-bold text-green-700 mb-3">${prop.name}</h3>`;
+                    html += '<ul class="space-y-2 text-gray-700 text-sm">';
+                    
+                    if (options.showPrice) html += `<li><span class="font-semibold">Price:</span> ₹${prop.price.toLocaleString()} (${prop.prop})</li>`;
+                    if (options.showArea && prop.area_sqft) html += `<li><span class="font-semibold">Area:</span> ${prop.area_sqft} sqft</li>`;
+                    if (options.showLocation && prop.location) html += `<li><span class="font-semibold">Location:</span> ${prop.location}</li>`;
+                    if (options.showBedBath && (prop.bedrooms || prop.bathrooms)) {
+                        html += `<li><span class="font-semibold">Bed/Bath:</span> ${prop.bedrooms || 'N/A'} Beds, ${prop.bathrooms || 'N/A'} Baths</li>`;
+                    }
+                    if (options.showFeatures) {
+                        let features = [];
+                        if (prop.is_furnished) features.push("Furnished");
+                        if (prop.parking_space) features.push("Parking");
+                        if (prop.description) features.push("More in description");
+                        if (features.length) html += `<li><span class="font-semibold">Features:</span> ${features.join(', ')}</li>`;
+                    }
+                    if (options.showType) html += `<li><span class="font-semibold">Type:</span> ${prop.propertytype}</li>`;
+                    
+                    html += '</ul>';
+                    html += `<button onclick="removeProperty(${index})" class="mt-4 text-red-500 hover:text-red-700 font-semibold text-sm">Remove</button>`;
+                } else {
+                    html += '<p class="text-gray-500 text-center py-8 text-sm">Drop a property here</p>';
+                }
+                
+                html += '</div>';
+                result.innerHTML += html;
+                
+                zone.innerHTML = propertyId && propertyData[propertyId] 
+                    ? `<p class="text-green-700 font-semibold text-sm">${propertyData[propertyId].name}</p>`
+                    : '<p class="text-gray-500 text-sm">Drag a property here</p>';
+            });
+        }
+
+        function removeProperty(index) {
+            const dropZones = [document.getElementById('dropZone1'), document.getElementById('dropZone2'), document.getElementById('dropZone3')];
+            delete dropZones[index].dataset.propertyId;
+            updateComparison();
+        }
+
+        function resetComparison() {
+            const dropZones = [document.getElementById('dropZone1'), document.getElementById('dropZone2'), document.getElementById('dropZone3')];
+            dropZones.forEach(zone => delete zone.dataset.propertyId);
+            document.getElementById('showPrice').checked = true;
+            document.getElementById('showArea').checked = true;
+            document.getElementById('showLocation').checked = true;
+            document.getElementById('showBedBath').checked = false;
+            document.getElementById('showFeatures').checked = false;
+            document.getElementById('showType').checked = true;
+            updateComparison();
+        }
+    </script>
+
+    <style>
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</body>
+</html>

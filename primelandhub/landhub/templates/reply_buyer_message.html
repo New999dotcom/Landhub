@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reply to Buyer Message | PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-red-50 to-red-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-[#e94146] text-white p-6 space-y-6">
+            <h2 class="text-3xl font-semibold text-center">Welcome</h2>
+            <ul class="space-y-4">
+                <li><a href="/adminhome/" class="text-white px-4 py-2 hover:bg-red-600 rounded-md">Dashboard</a></li>
+                <li><a href="/view_buyer_messages/" class="text-white px-4 py-2 bg-red-600 rounded-md">Buyer Messages</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6">
+            <h1 class="text-4xl font-bold text-[#e94146] mb-6">Reply to Buyer Message</h1>
+
+            <!-- Flash Messages -->
+            {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="p-3 mb-2 text-white rounded-lg {% if message.tags == 'success' %} bg-green-500 {% else %} bg-red-500 {% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Message Details -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <p><strong>From:</strong> {{ message.name }} ({{ message.buyer.email }})</p>
+                <p><strong>Buyer ID:</strong> {{ message.buyer.buyer_id }}</p>
+                <p><strong>Subject:</strong> {{ message.subject }}</p>
+                <p><strong>Message:</strong> {{ message.message }}</p>
+                <p><strong>Sent On:</strong> {{ message.created_at|date:"d M Y" }}</p>
+
+                <!-- Reply Form -->
+                <form method="POST" class="mt-4">
+                    {% csrf_token %}
+                    <label for="reply" class="block text-lg font-medium text-gray-700">Your Reply:</label>
+                    <textarea id="reply" name="reply" class="w-full p-2 border rounded-md" rows="5" required>{{ message.reply }}</textarea>
+                    <button type="submit" class="mt-4 bg-blue-500 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">Send Reply</button>
+                </form>
+            </div>
+
+            <!-- Back Button -->
+            <div class="mt-6 text-center">
+                <a href="{% url 'view_buyer_messages' %}" class="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-500 transition">
+                    ← Back to Buyer Messages
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,383 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ property.name }} Details | PrimeLand Hub</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Static CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <!-- Custom Styles -->
+    <style>
+        .share-btn {
+            background-color: #fff;
+            color: #555;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .share-btn.twitter { color: #1DA1F2; }
+        .share-btn.facebook { color: #4267B2; }
+        .share-btn.linkedin { color: #0077B5; }
+        .share-btn.instagram { color: #E1306C; }
+        .share-btn.link { color: #6B7280; }
+        .share-btn:hover.twitter { color: #fff; background-color: #1DA1F2; }
+        .share-btn:hover.facebook { color: #fff; background-color: #4267B2; }
+        .share-btn:hover.linkedin { color: #fff; background-color: #0077B5; }
+        .share-btn:hover.instagram { color: #fff; background-color: #E1306C; }
+        .share-btn:hover.link { color: #fff; background-color: #6B7280; }
+        .share-btn .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+        .share-btn:hover .tooltip { visibility: visible; opacity: 1; }
+        .copy-popup {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .copy-popup.show { opacity: 1; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-600 to-green-800 text-white py-6 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center tracking-tight">{{ property.name }} Details</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Property Image with Save Button and Share -->
+            <div class="relative">
+                <img src="{{ property.image.url|default:'/static/img/default-property.jpg' }}" alt="{{ property.name }}" class="w-full h-64 sm:h-96 object-cover">
+                <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">{{ property.status }}</div>
+                <button id="save-toggle" class="absolute top-4 left-4 bg-white p-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300" data-property-id="{{ property.id }}">
+                    <i class="fas fa-heart text-xl {% if is_saved %}text-red-500{% else %}text-gray-400{% endif %}"></i>
+                </button>
+                <div class="absolute top-4 right-16 flex space-x-3">
+                    <button onclick="shareProperty('twitter')" class="share-btn twitter"><i class="fab fa-twitter"></i><span class="tooltip">Share on Twitter</span></button>
+                    <button onclick="shareProperty('facebook')" class="share-btn facebook"><i class="fab fa-facebook-f"></i><span class="tooltip">Share on Facebook</span></button>
+                    <button onclick="shareProperty('linkedin')" class="share-btn linkedin"><i class="fab fa-linkedin-in"></i><span class="tooltip">Share on LinkedIn</span></button>
+                    <button onclick="shareProperty('instagram')" class="share-btn instagram"><i class="fab fa-instagram"></i><span class="tooltip">Share on Instagram</span></button>
+                    <button onclick="copyLink()" class="share-btn link relative"><i class="fas fa-link"></i><span class="tooltip">Copy Link</span><div class="copy-popup" id="copy-popup">Link copied</div></button>
+                </div>
+            </div>
+
+            <!-- Property Details -->
+            <div class="p-6 sm:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                    <!-- Basic Info -->
+                    <div class="space-y-6">
+                        <h2 class="text-2xl font-bold text-green-700">Basic Information</h2>
+                        <dl class="space-y-3 text-gray-700">
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Price:</dt>
+                                <dd class="text-xl font-bold text-green-800">₹{{ property.price }}</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Location:</dt>
+                                <dd>{{ property.place }}</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Type:</dt>
+                                <dd>{{ property.propertytype }} ({{ property.prop|title }})</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Area:</dt>
+                                <dd>{{ property.area_sqft|floatformat:2|default:"N/A" }} sqft</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Bedrooms:</dt>
+                                <dd>{{ property.bedrooms|default:"N/A" }}</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Bathrooms:</dt>
+                                <dd>{{ property.bathrooms|default:"N/A" }}</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Furnished:</dt>
+                                <dd>{{ property.is_furnished|yesno:"Yes,No" }}</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Parking:</dt>
+                                <dd>{{ property.parking_space|yesno:"Yes,No" }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="space-y-6">
+                        <h2 class="text-2xl font-bold text-green-700">Contact Information</h2>
+                        <dl class="space-y-3 text-gray-700">
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Posted By:</dt>
+                                <dd>{{ property.email.name }}</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Phone:</dt>
+                                <dd>{{ property.phone }}</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Email:</dt>
+                                <dd>{{ property.email.email }}</dd>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center">
+                                <dt class="font-semibold text-green-600 w-32 shrink-0">Listed On:</dt>
+                                <dd>{{ property.date }}</dd>
+                            </div>
+                        </dl>
+                        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
+                            {% if buyer %}
+    <button onclick="window.location.href='{% url 'chat' property.email.id buyer.id %}'" 
+            class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition duration-300 flex items-center justify-center w-full sm:w-auto">
+        <i class="fas fa-comments mr-2"></i> Contact Seller
+    </button>
+{% endif %}
+                            <a href="https://wa.me/{{ property.phone }}?text=Hello%2C%20I%20am%20interested%20in%20{{ property.name }}%20at%20₹{{ property.price }}%20in%20{{ property.place }}"
+                               class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition duration-300 flex items-center justify-center w-full sm:w-auto">
+                                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <a href="{% url 'create_payment' property.id %}" 
+   class="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-2 rounded-full hover:from-blue-600 hover:to-blue-800 transition duration-300 flex items-center justify-center w-full sm:w-auto shadow-md transform hover:scale-102">
+    <i class="fas fa-shopping-cart mr-2 text-sm"></i> 
+    <span class="text-base font-semibold">Buy Now</span>
+</a>
+                    
+                </div>
+
+                {% if messages %}
+                    <div class="mt-6 space-y-4">
+                        {% for message in messages %}
+                            <div class="bg-green-100 border-l-4 border-green-600 text-green-800 px-6 py-3 rounded-r-lg shadow-md">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Description -->
+                <div class="mt-10">
+                    <h2 class="text-2xl font-bold text-green-700 mb-4">Property Description</h2>
+                    <p class="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg">{{ property.description }}</p>
+                </div>
+
+                <!-- Map -->
+                <div class="mt-10">
+                    <h2 class="text-2xl font-bold text-green-700 mb-4">Property Location</h2>
+                    <div id="map" class="w-full h-72 rounded-xl shadow-inner"></div>
+                </div>
+
+                <!-- Documents -->
+                <div class="mt-10">
+                    <h2 class="text-2xl font-bold text-green-700 mb-4">Property Documents</h2>
+                    <button id="view-docs" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition duration-300 flex items-center">
+                        <i class="fas fa-file-pdf mr-2"></i> View Documents
+                    </button>
+                    <div id="docs-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+                        <div class="bg-white rounded-xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-green-700">Property Documents</h3>
+                                <button id="close-modal" class="text-gray-600 hover:text-green-700 text-2xl">×</button>
+                            </div>
+                            <ul class="space-y-3">
+                                {% if property.document %}
+                                    <li><a href="{{ property.document.url }}" target="_blank" class="text-green-600 hover:underline flex items-center"><i class="fas fa-file-pdf mr-2"></i> {{ property.document.name|cut:"documents/properties/" }}</a></li>
+                                {% else %}
+                                    <li class="text-gray-600">No documents available.</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interested Form -->
+                <form id="interest-form" class="mt-10 p-6 bg-gray-50 border border-gray-200 rounded-xl flex items-center space-x-4 shadow-md">
+                    {% csrf_token %}
+                    <input type="checkbox" id="interested" name="interested" class="w-6 h-6 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer" {% if user_interest and user_interest.interested %}checked{% endif %}>
+                    <label for="interested" class="text-xl font-semibold text-green-700 cursor-pointer">I'm Interested</label>
+                </form>
+
+                <!-- Back Button -->
+                <div class="mt-10 text-center">
+                    <a href="{% url 'viewpropertiesbuyer' %}" class="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition duration-300 shadow-lg">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-green-800 to-green-600 text-white text-center py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            © 2025 PrimeLand Hub. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Map Loading
+        async function loadMap() {
+            const apiKey = "5beecfcb5ae6b85eb1bb8bef89437e0c"; // Replace with your Position Stack API Key
+            const location = "{{ property.place|escapejs }}";
+            try {
+                const response = await fetch(`http://api.positionstack.com/v1/forward?access_key=${apiKey}&query=${location}`);
+                const data = await response.json();
+                if (data.data && data.data.length > 0) {
+                    const lat = data.data[0].latitude;
+                    const lon = data.data[0].longitude;
+                    const map = L.map('map').setView([lat, lon], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(map);
+                    L.marker([lat, lon]).addTo(map)
+                        .bindPopup("<b>{{ property.name }}</b><br>{{ property.place }}")
+                        .openPopup();
+                } else {
+                    document.getElementById('map').innerHTML = "<p class='text-red-500 text-center p-4'>Location not found</p>";
+                }
+            } catch (error) {
+                console.error("Error fetching coordinates:", error);
+                document.getElementById('map').innerHTML = "<p class='text-red-500 text-center p-4'>Failed to load map.</p>";
+            }
+        }
+        window.onload = loadMap;
+
+        // Save for Later Toggle
+        document.getElementById("save-toggle").addEventListener("click", function() {
+            const propertyId = this.getAttribute("data-property-id");
+            const heartIcon = this.querySelector("i");
+            const isSaved = heartIcon.classList.contains("text-red-500");
+            const action = isSaved ? "remove" : "save";
+            const formData = new FormData();
+            formData.append("property_id", propertyId);
+            formData.append("action", action);
+            formData.append("csrfmiddlewaretoken", document.querySelector("[name=csrfmiddlewaretoken]").value);
+
+            fetch("{% url 'save_property_buyer' %}", {  // New URL for saving properties
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "success") {
+                    if (data.action === "saved") {
+                        heartIcon.classList.remove("text-gray-400");
+                        heartIcon.classList.add("text-red-500");
+                        alert(`${data.property_name || 'Property'} saved for later!`);
+                    } else if (data.action === "removed") {
+                        heartIcon.classList.remove("text-red-500");
+                        heartIcon.classList.add("text-gray-400");
+                        alert(`${data.property_name || 'Property'} removed from saved properties.`);
+                    }
+                } else if (data.status === "error") {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while updating saved properties.");
+            });
+        });
+
+        // Interested Checkbox
+        document.getElementById("interested").addEventListener("change", function() {
+            const formData = new FormData();
+            formData.append("interested", this.checked ? "on" : "off");
+            formData.append("csrfmiddlewaretoken", document.querySelector("[name=csrfmiddlewaretoken]").value);
+
+            fetch("{% url 'property_detailbuyer' property.id %}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert(this.checked ? "Interest noted!" : "Interest removed.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+
+        // Share Property
+        function shareProperty(platform) {
+            const url = window.location.href;
+            const text = `Check out this property: {{ property.name }} - ₹{{ property.price }} in {{ property.place }}`;
+            if (platform === 'twitter') window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+            else if (platform === 'facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+            else if (platform === 'linkedin') window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+            else if (platform === 'instagram') {
+                navigator.clipboard.writeText(url).then(() => alert('Link copied! Paste it in Instagram.'));
+            }
+        }
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                const popup = document.getElementById('copy-popup');
+                popup.classList.add('show');
+                setTimeout(() => popup.classList.remove('show'), 2000);
+            });
+        }
+
+        // Modal
+        document.getElementById('view-docs').addEventListener('click', () => document.getElementById('docs-modal').classList.remove('hidden'));
+        document.getElementById('close-modal').addEventListener('click', () => document.getElementById('docs-modal').classList.add('hidden'));
+        document.getElementById('docs-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('docs-modal')) document.getElementById('docs-modal').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

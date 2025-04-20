@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment for {{ property.name }} | PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}&currency=USD"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-gradient-to-r from-green-600 to-green-800 text-white py-6 text-center">
+        <h1 class="text-3xl font-extrabold">Complete Your Payment</h1>
+    </header>
+
+    <main class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-green-700 mb-4">{{ property.name }}</h2>
+        <p class="text-gray-700 mb-4">Location: {{ property.place }}</p>
+        <p class="text-xl font-bold text-green-800">Price: ${{ property.price }}</p>
+        
+        <div id="paypal-button-container" class="mt-6"></div>
+
+        <script>
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: { value: "{{ property.price }}" }
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                        window.location.href = "{% url 'payment_success' %}";
+                    });
+                },
+                onCancel: function(data) {
+                    window.location.href = "{% url 'payment_cancel' %}";
+                }
+            }).render('#paypal-button-container');
+        </script>
+    </main>
+
+    <footer class="bg-gradient-to-r from-green-800 to-green-600 text-white text-center py-6">
+        <p>© 2025 PrimeLand Hub. All rights reserved.</p>
+    </footer>
+</body>
+</html>

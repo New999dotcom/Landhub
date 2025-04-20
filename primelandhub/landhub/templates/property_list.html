@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Properties</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h2>Property Listings (Blockchain-Enabled)</h2>
+    <table>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Place</th>
+            <th>Price</th>
+            <th>Block Number</th>
+            <th>Transaction Hash</th>
+        </tr>
+        {% for prop in properties %}
+        <tr>
+            <td>
+                {% if prop.image %}
+                    <img src="{{ prop.image }}" alt="Property Image" width="100">
+                {% else %}
+                    No Image
+                {% endif %}
+            </td>
+            <td>{{ prop.name }}</td>
+            <td>{{ prop.place }}</td>
+            <td>${{ prop.price }}</td>
+            <td>{{ prop.block_number }}</td>
+            <td>
+                {% if prop.transaction_hash != "N/A" %}
+                    <a href="https://etherscan.io/tx/{{ prop.transaction_hash }}" target="_blank">
+                        {{ prop.transaction_hash|slice:":10" }}...
+                    </a>
+                {% else %}
+                    Pending
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

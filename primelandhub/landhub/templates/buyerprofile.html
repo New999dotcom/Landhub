@@ -1,0 +1,300 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyer Profile - PrimeLand Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Existing styles unchanged */
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #1e3d58;
+            color: white;
+            padding: 20px 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 32px;
+        }
+        .profile-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .profile-info {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .profile-info h2 {
+            font-size: 28px;
+            color: #1e3d58;
+        }
+        .profile-info p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .profile-info .profile-detail {
+            margin: 10px 0;
+        }
+        .profile-img {
+            flex: 0 0 200px;
+            text-align: center;
+        }
+        .profile-img img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-info button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 30%;
+            margin-top: 20px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        .profile-info button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        .delete-button {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 30%;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .delete-button:hover {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        .edit-link {
+            color: #1e3d58;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .edit-link:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            background-color: #1e3d58;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .saved-section {
+            width: 100%;
+            margin-top: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .saved-section h2 {
+            font-size: 28px;
+            color: #1e3d58;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #1e3d58;
+            padding-bottom: 10px;
+        }
+        .saved-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .saved-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        .saved-item img {
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 20px;
+            border: 1px solid #ddd;
+        }
+        .saved-item .info {
+            flex: 1;
+        }
+        .saved-item a {
+            color: #1e3d58;
+            font-weight: 600;
+            font-size: 18px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .saved-item a:hover {
+            color: #4CAF50;
+            text-decoration: underline;
+        }
+        .saved-item .details {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .saved-item .saved-date {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        .remove-btn {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .remove-btn:hover {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome, {{ buyer.name }}!</h1>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-info">
+            {% if buyer %}
+                <h2>{{ buyer.name }}'s Profile</h2>
+                <p class="profile-detail"><strong>Email:</strong> {{ buyer.email }}</p>
+                <p class="profile-detail"><strong>Phone Number:</strong> {{ buyer.phone }}</p>
+                <p class="profile-detail"><strong>Age:</strong> {{ buyer.age|default:"Not specified" }}</p>
+                <p class="profile-detail"><strong>Location:</strong> {{ buyer.place|default:"Not specified" }}</p>
+                <p class="profile-detail"><strong>Gender:</strong> {{ buyer.gender|default:"Not specified" }}</p>
+
+                <button onclick="window.location.href='{% url 'editprofilebuyer' %}'">Edit Profile</button>
+                <button onclick="window.location.href='{% url 'dashboard' %}'">Back</button>
+                
+                <form method="POST" action="{% url 'deleteprofilebuyer' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="delete-button" type="submit" onclick="return confirm('Are you sure you want to delete your profile?')">Delete Profile</button>
+                </form>
+            {% else %}
+                <p>Please <a href="{% url 'Login_buyer' %}" class="edit-link">log in</a> to view your profile.</p>
+            {% endif %}
+        </div>
+
+        <div class="profile-img">
+            {% if buyer and buyer.image %}
+                <img src="{{ buyer.image.url }}" alt="Profile Image">
+            {% else %}
+                <img src="{% static 'img/default-profileimage.jpg' %}" alt="Default Profile Image">
+            {% endif %}
+        </div>
+
+        {% if buyer %}
+            <!-- Debug output without json_script -->
+            
+            <div class="saved-section">
+                <h2>Saved Properties</h2>
+                {% if saved_properties and saved_properties|length > 0 %}
+                    {% for prop in saved_properties %}
+                        <div class="saved-item" id="saved-item-{{ prop.id }}">
+                            <img src="{{ prop.image.url|default:'/static/img/default-property.jpg' }}" alt="{{ prop.name }}">
+                            <div class="info">
+                                <a href="{% url 'property_detailbuyer' prop.id %}">{{ prop.name }}</a>
+                                <div class="details">{{ prop.place }} - ${{ prop.price }}</div>
+                                <!-- Use default 'savedproperty_set' -->
+                                <div class="saved-date">Saved on: {{ prop.savedproperty.first.saved_date|date:"F d, Y" }}</div>
+                            </div>
+                            <button class="remove-btn" data-property-id="{{ prop.id }}" onclick="removeFromSaved(this)">Remove</button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>You haven't saved any properties yet. <a href="{% url 'viewpropertiesbuyer' %}" class="edit-link">Browse properties</a></p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <p>© 2025 PrimeLand Hub. All rights reserved.</p>
+    </div>
+
+    <script>
+        function removeFromSaved(button) {
+            const propertyId = button.getAttribute("data-property-id");
+            const formData = new FormData();
+            formData.append("property_id", propertyId);
+            formData.append("action", "remove");
+            formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+            fetch("{% url 'save_property_buyer' %}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "success" && data.action === "removed") {
+                    const item = document.getElementById(`saved-item-${propertyId}`);
+                    if (item) {
+                        item.remove();
+                    }
+                    const remainingItems = document.querySelectorAll('.saved-item');
+                    if (remainingItems.length === 0) {
+                        const savedSection = document.querySelector('.saved-section');
+                        savedSection.innerHTML = '<h2>Saved Properties</h2><p>You haven\'t saved any properties yet. <a href="{% url "viewpropertiesbuyer" %}" class="edit-link">Browse properties</a></p>';
+                    }
+                } else if (data.status === "error") {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while removing the property from saved properties.");
+            });
+        }
+    </script>
+</body>
+</html>

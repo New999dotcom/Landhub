@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Market Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-semibold text-green-600 text-center">🏡 Real Estate Market Analysis</h1>
+
+        <!-- Location -->
+        <p class="mt-2 text-gray-700 text-center">📍 <strong>Location:</strong> {{ analysis_data.location }}</p>
+
+        <!-- Market Trends Table -->
+        <div class="mt-6 bg-white shadow-lg rounded-lg p-4">
+            <h2 class="text-xl font-semibold text-green-700 text-center">📊 Market Trends (2018 - 2025)</h2>
+            <table class="w-full mt-4 border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-green-500 text-white">
+                        <th class="border p-2">📅 Year</th>
+                        <th class="border p-2">💰 Average Price ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for year, price in analysis_data.avg_price_trend %}
+                    <tr class="border">
+                        <td class="border p-2 text-center">{{ year }}</td>
+                        <td class="border p-2 text-center">${{ price|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Predicted Prices Table -->
+        <div class="mt-6 bg-blue-50 shadow-lg rounded-lg p-4">
+            <h2 class="text-xl font-semibold text-blue-700 text-center">🤖 AI Predicted Prices (2026 - 2030)</h2>
+            <table class="w-full mt-4 border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-blue-500 text-white">
+                        <th class="border p-2">📅 Year</th>
+                        <th class="border p-2">📈 Predicted Price ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for year, price in analysis_data.predicted_prices %}
+                    <tr class="border">
+                        <td class="border p-2 text-center">{{ year }}</td>
+                        <td class="border p-2 text-center">${{ price|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Chart Visualization -->
+        <div class="mt-8 bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 text-center">📉 Market Trend & Predictions</h2>
+            <canvas id="priceChart" class="mt-4"></canvas>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById("priceChart").getContext("2d");
+            var priceChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: [{% for year, price in analysis_data.avg_price_trend %} "{{ year }}", {% endfor %}
+                             {% for year, price in analysis_data.predicted_prices %} "{{ year }}", {% endfor %}],
+                    datasets: [
+                        {
+                            label: "Actual Prices",
+                            borderColor: "green",
+                            backgroundColor: "rgba(0, 128, 0, 0.2)",
+                            data: [{% for year, price in analysis_data.avg_price_trend %} {{ price }}, {% endfor %}],
+                            fill: true
+                        },
+                        {
+                            label: "Predicted Prices",
+                            borderColor: "red",
+                            backgroundColor: "rgba(255, 99, 132, 0.2)",
+                            data: [{% for year, price in analysis_data.predicted_prices %} {{ price }}, {% endfor %}],
+                            borderDash: [5, 5],
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: "Year" } },
+                        y: { title: { display: true, text: "Price ($)" } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ property.name }} Details</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Static CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <!-- Custom Styles for Social Sharing -->
+    <style>
+        .share-container {
+            position: relative;
+        }
+        .share-btn {
+            background-color: #fff;
+            color: #555;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .share-btn.twitter { color: #1DA1F2; }
+        .share-btn.facebook { color: #4267B2; }
+        .share-btn.linkedin { color: #0077B5; }
+        .share-btn.instagram { color: #E1306C; }
+        .share-btn.link { color: #6B7280; }
+        .share-btn:hover.twitter { color: #fff; background-color: #1DA1F2; }
+        .share-btn:hover.facebook { color: #fff; background-color: #4267B2; }
+        .share-btn:hover.linkedin { color: #fff; background-color: #0077B5; }
+        .share-btn:hover.instagram { color: #fff; background-color: #E1306C; }
+        .share-btn:hover.link { color: #fff; background-color: #6B7280; }
+        .share-btn.copied { background-color: #4CAF50; color: #fff; }
+        .share-btn i {
+            font-size: 18px;
+        }
+        .share-btn .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+        .share-btn:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        /* YouTube-style Popup */
+        .copy-popup {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 20;
+        }
+        .copy-popup.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-green-50 font-sans">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-600 to-green-800 text-white py-8 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-extrabold text-center tracking-tight">{{ property.name }} Details</h1>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all hover:shadow-3xl">
+            <!-- Property Image with Wishlist Toggle and Share Buttons -->
+            <div class="relative">
+                <img src="{{ property.image.url }}" alt="{{ property.name }}" class="w-full h-96 object-cover transition-transform duration-500 hover:scale-105">
+                <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">{{ property.status }}</div>
+                <button id="wishlist-toggle" class="absolute top-4 left-4 bg-white p-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none" data-property-id="{{ property.id }}">
+                    <i class="fas fa-heart text-xl {% if user and property in user.wishlist_set.all %}text-red-500{% else %}text-gray-400{% endif %} hover:text-red-600 transition-colors duration-300"></i>
+                </button>
+                <!-- Share Buttons Positioned Top-Right -->
+                <div class="absolute top-4 right-16 flex space-x-2 share-container">
+                    <button onclick="shareProperty('twitter')" class="share-btn twitter">
+                        <i class="fab fa-twitter"></i>
+                        <span class="tooltip">Share on Twitter</span>
+                    </button>
+                    <button onclick="shareProperty('facebook')" class="share-btn facebook">
+                        <i class="fab fa-facebook-f"></i>
+                        <span class="tooltip">Share on Facebook</span>
+                    </button>
+                    <button onclick="shareProperty('linkedin')" class="share-btn linkedin">
+                        <i class="fab fa-linkedin-in"></i>
+                        <span class="tooltip">Share on LinkedIn</span>
+                    </button>
+                    <button onclick="shareProperty('instagram')" class="share-btn instagram">
+                        <i class="fab fa-instagram"></i>
+                        <span class="tooltip">Share on Instagram</span>
+                    </button>
+                    <button onclick="copyLink()" class="share-btn link">
+                        <i class="fas fa-link"></i>
+                        <span class="tooltip">Copy Link</span>
+                        <div class="copy-popup" id="copy-popup">Link copied</div>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Property Details -->
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Basic Info -->
+                    <div class="space-y-4">
+                        <h2 class="text-3xl font-bold text-green-700">Basic Information</h2>
+                        <div class="grid grid-cols-1 gap-4 text-gray-700">
+                            <p><span class="font-semibold text-green-600">Price:</span> <span class="text-2xl font-bold text-green-800">₹{{ property.price }}</span></p>
+                            <p><span class="font-semibold text-green-600">Location:</span> {{ property.place }}</p>
+                            <p><span class="font-semibold text-green-600">Type:</span> {{ property.propertytype }} ({{ property.prop|title }})</p>
+                            <p><span class="font-semibold text-green-600">Area:</span> {{ property.area_sqft|floatformat:2 }} sqft</p>
+                            <p><span class="font-semibold text-green-600">Bedrooms:</span> {{ property.bedrooms|default:"N/A" }}</p>
+                            <p><span class="font-semibold text-green-600">Bathrooms:</span> {{ property.bathrooms|default:"N/A" }}</p>
+                            <p><span class="font-semibold text-green-600">Furnished:</span> {{ property.is_furnished|yesno:"Yes,No" }}</p>
+                            <p><span class="font-semibold text-green-600">Parking:</span> {{ property.parking_space|yesno:"Yes,No" }}</p>
+                            <p><span class="font-semibold text-green-600">Status:</span> {{ property.status }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="space-y-4">
+                        <h2 class="text-3xl font-bold text-green-700">Contact Information</h2>
+                        <p class="text-gray-700"><span class="font-semibold text-green-600">Posted By:</span> {{ property.email.name }}</p>
+                        <p class="text-gray-700"><span class="font-semibold text-green-600">Phone:</span> {{ property.phone }}</p>
+                        <p class="text-gray-700"><span class="font-semibold text-green-600">Email:</span> {{ property.email.email }}</p>
+                        <p class="text-gray-700"><span class="font-semibold text-green-600">Listed On:</span> {{ property.date }}</p>
+
+                        <div class="flex space-x-4">
+                            <button class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition duration-300 transform hover:scale-105">Contact Seller</button>
+                            <a href="https://wa.me/{{ property.phone }}?text=Hello%2C%20I%20am%20interested%20in%20the%20property%3A%0A{{ property.name }}%0A{{ property.place }}%0A₹{{ property.price }}"
+                               class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition duration-300 transform hover:scale-105 flex items-center">
+                                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="bg-green-100 border-l-4 border-green-600 text-green-800 px-6 py-3 mt-6 rounded-r-lg shadow-md">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Description -->
+                <div class="mt-10">
+                    <h2 class="text-3xl font-bold text-green-700 mb-4">Property Description</h2>
+                    <p class="text-gray-700 leading-relaxed bg-green-50 p-4 rounded-lg">{{ property.description }}</p>
+                </div>
+
+                <!-- Map Section -->
+                <div class="mt-10">
+                    <h2 class="text-3xl font-bold text-green-700 mb-4">Property Location</h2>
+                    <div id="map" class="w-full h-72 rounded-xl shadow-inner"></div>
+                </div>
+
+                <!-- Documents Section -->
+                <div class="mt-10">
+                    <h2 class="text-3xl font-bold text-green-700 mb-4">Property Documents</h2>
+                    <button id="view-docs" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition duration-300 transform hover:scale-105 flex items-center">
+                        <i class="fas fa-file-pdf mr-2"></i> View Documents
+                    </button>
+                </div>
+
+                <!-- Modal for Documents -->
+                <div id="docs-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+                    <div class="bg-white rounded-xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-2xl font-bold text-green-700">Property Documents</h3>
+                            <button id="close-modal" class="text-gray-600 hover:text-green-700 text-2xl">×</button>
+                        </div>
+                        <ul class="space-y-3">
+                            {% if property.document %}
+                                <li>
+                                    <a href="{{ property.document.url }}" target="_blank" class="text-green-600 hover:underline flex items-center">
+                                        <i class="fas fa-file-pdf mr-2"></i> Property Document ({{ property.document.name|cut:"documents/properties/" }})
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="text-gray-600">No documents available for this property.</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Interested Checkbox Form -->
+                <form id="interest-form" class="mt-10 p-6 bg-green-50 border border-green-200 rounded-xl flex items-center space-x-4 shadow-md">
+                    {% csrf_token %}
+                    <input type="checkbox" id="interested" name="interested"
+                        class="w-6 h-6 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                        {% if user_interest and user_interest.interested %}checked{% endif %}>
+                    <label for="interested" class="text-xl font-semibold text-green-700 cursor-pointer">I'm Interested</label>
+                </form>
+
+                <!-- Back Button -->
+                <div class="mt-10 text-center">
+                    <a href="{% url 'viewproperties' %}" class="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition duration-300 transform hover:scale-105 shadow-lg">
+                        Back to Properties
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-green-800 to-green-600 text-white text-center py-6 shadow-inner">
+        <div class="container mx-auto px-4">
+            © 2025 Primeland Hub. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        async function loadMap() {
+            const apiKey = "5beecfcb5ae6b85eb1bb8bef89437e0c"; // Replace with your Position Stack API Key
+            const location = "{{ property.place|escapejs }}";
+
+            try {
+                const response = await fetch(`http://api.positionstack.com/v1/forward?access_key=${apiKey}&query=${location}`);
+                const data = await response.json();
+
+                if (data.data.length > 0) {
+                    const lat = data.data[0].latitude;
+                    const lon = data.data[0].longitude;
+
+                    const map = L.map('map').setView([lat, lon], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    L.marker([lat, lon]).addTo(map)
+                        .bindPopup("<b>{{ property.name }}</b><br>{{ property.place }}")
+                        .openPopup();
+                } else {
+                    document.getElementById('map').innerHTML = "<p class='text-red-500 text-center p-4'>Location not found</p>";
+                }
+            } catch (error) {
+                console.error("Error fetching coordinates:", error);
+                document.getElementById('map').innerHTML = "<p class='text-red-500 text-center p-4'>Failed to load map</p>";
+            }
+        }
+        window.onload = loadMap;
+
+        // AJAX for "I'm Interested" checkbox
+        document.getElementById("interested").addEventListener("change", function() {
+            let formData = new FormData();
+            formData.append("interested", this.checked ? "on" : "off");
+            formData.append("csrfmiddlewaretoken", document.querySelector("[name=csrfmiddlewaretoken]").value);
+
+            fetch("{% url 'property_detail' property.id %}", {
+                method: "POST",
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                console.log("Response:", data);
+            }).catch(error => console.error("Error:", error));
+        });
+
+        // AJAX for Wishlist Toggle with Heart Icon
+        document.getElementById("wishlist-toggle").addEventListener("click", function() {
+            const propertyId = this.getAttribute("data-property-id");
+            const heartIcon = this.querySelector("i");
+            const isInWishlist = heartIcon.classList.contains("text-red-500");
+            const action = isInWishlist ? "remove" : "add";
+
+            const formData = new FormData();
+            formData.append("property_id", propertyId);
+            formData.append("action", action);
+            formData.append("csrfmiddlewaretoken", document.querySelector("[name=csrfmiddlewaretoken]").value);
+
+            fetch("{% url 'wishlist_action' %}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    if (data.action === "added") {
+                        heartIcon.classList.remove("text-gray-400");
+                        heartIcon.classList.add("text-red-500");
+                    } else if (data.action === "removed") {
+                        heartIcon.classList.remove("text-red-500");
+                        heartIcon.classList.add("text-gray-400");
+                    }
+                } else if (data.status === "error") {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+
+        // Share Property Functionality
+        function shareProperty(platform) {
+            const url = window.location.href;
+            const text = `Check out this property: {{ property.name }} - ₹{{ property.price }} in {{ property.place }}`;
+            if (platform === 'twitter') {
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+            } else if (platform === 'facebook') {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+            } else if (platform === 'linkedin') {
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+            } else if (platform === 'instagram') {
+                // Instagram doesn't support direct sharing via URL, so we'll copy the link and prompt
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Instagram doesn’t support direct sharing. Link copied! Paste it in your Instagram post.');
+                });
+            }
+        }
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                const linkBtn = document.querySelector('.share-btn.link');
+                const popup = document.getElementById('copy-popup');
+                linkBtn.classList.add('copied');
+                popup.classList.add('show');
+                setTimeout(() => {
+                    linkBtn.classList.remove('copied');
+                    popup.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        // Modal Functionality
+        const viewDocsBtn = document.getElementById('view-docs');
+        const docsModal = document.getElementById('docs-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        viewDocsBtn.addEventListener('click', () => {
+            docsModal.classList.remove('hidden');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            docsModal.classList.add('hidden');
+        });
+
+        docsModal.addEventListener('click', (e) => {
+            if (e.target === docsModal) {
+                docsModal.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

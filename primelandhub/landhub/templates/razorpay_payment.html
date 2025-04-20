@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment | PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-10 border-t-8 border-green-600 max-w-lg w-full text-center">
+            <h2 class="text-3xl font-bold text-green-700 mb-4">Pay for: <span class="text-gray-800">{{ property.name }}</span></h2>
+            <p class="text-xl text-gray-600 mb-6">💰 Price: <span class="font-semibold text-green-600">₹{{ property.price }}</span></p>
+
+            <form action="{{ callback_url }}" method="POST">
+                {% csrf_token %}
+                <script
+                    src="https://checkout.razorpay.com/v1/checkout.js"
+                    data-key="{{ razorpay_key }}"
+                    data-amount="{{ amount }}"
+                    data-currency="INR"
+                    data-order_id="{{ order_id }}"
+                    data-buttontext="Pay Now"
+                    data-name="Property Purchase"
+                    data-description="Payment for {{ property.name }}"
+                    data-prefill.name="{{ user.username }}"
+                    data-prefill.email="{{ user.email }}"
+                    data-theme.color="#22c55e">
+                </script>
+            </form>
+
+            <p class="mt-6 text-sm text-gray-500">Secure payment powered by Razorpay</p>
+        </div>
+    </div>
+
+</body>
+</html>

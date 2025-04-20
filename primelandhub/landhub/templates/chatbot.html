@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Chatbot</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background: linear-gradient(to bottom, #d9f7e5, #a1e5b2); /* Light green gradient */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;}
+    
+        #chat-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+    
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    
+        #chat-box {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #fafafa;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            animation-delay: 0.2s;
+        }
+    
+        .message {
+            margin-bottom: 12px;
+            opacity: 0;
+            animation: slideIn 0.8s forwards;
+        }
+    
+        @keyframes slideIn {
+            from {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    
+        .user-message {
+            text-align: right;
+            background-color: #0069d9;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 18px;
+            max-width: 80%;
+            margin-left: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: messageAppear 0.6s forwards;
+        }
+    
+        @keyframes messageAppear {
+            0% {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    
+        .chatbot-message {
+            text-align: left;
+            background-color: #f1f1f1;
+            color: #333;
+            padding: 10px 14px;
+            border-radius: 18px;
+            max-width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: messageAppear 0.6s forwards;
+            animation-delay: 0.2s;
+        }
+    
+        #user-message {
+            width: calc(100% - 110px);
+            padding: 14px;
+            border-radius: 30px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+    
+        #user-message:focus {
+            border-color: #0069d9;
+        }
+    
+        #send-button {
+            padding: 14px 24px;
+            background-color: #0069d9;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+            animation-delay: 1s;
+        }
+    
+        #send-button:hover {
+            background-color: #0053a5;
+            transform: translateY(-2px);
+        }
+    
+        #send-button:active {
+            transform: translateY(2px);
+        }
+    
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+    
+    
+</head>
+<body>
+
+    <div id="chat-container">
+        <h2 style="text-align: center; color: #333;">Real Estate Chatbot</h2>
+        <div id="chat-box"></div>
+        <div class="input-container">
+            <input type="text" id="user-message" placeholder="Ask me anything about real estate...">
+            <button id="send-button">Send</button>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+    <a href="{% url 'home' %}" style="text-decoration: none; color: white; background-color: #0069d9; padding: 10px 20px; border-radius: 30px; font-size: 16px; transition: background-color 0.3s;">Back to Home</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Handle sending the message
+            $('#send-button').click(function() {
+                const userMessage = $('#user-message').val();
+
+                if (userMessage.trim() === '') {
+                    alert('Please enter a message!');
+                    return;
+                }
+
+                // Display user message in the chat box
+                $('#chat-box').append('<div class="message user-message">' + userMessage + '</div>');
+                $('#user-message').val('');  // Clear the input field
+                $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);  // Auto-scroll to the bottom
+
+                // Send the message to the Django view (chatbot)
+                $.ajax({
+                    url: '/chatbot/',
+                    type: 'POST',
+                    data: { 'message': userMessage },
+                    success: function(response) {
+                        if (response.response) {
+                            $('#chat-box').append('<div class="message chatbot-message">' + response.response + '</div>');
+                        } else {
+                            $('#chat-box').append('<div class="message chatbot-message">Sorry, there was an error. Please try again.</div>');
+                        }
+                        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);  // Auto-scroll to the bottom
+                    },
+                    error: function(xhr, status, error) {
+                        $('#chat-box').append('<div class="message chatbot-message">Sorry, there was an error. Please try again.</div>');
+                        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);  // Auto-scroll to the bottom
+                    }
+                });
+            });
+
+            // Allow pressing "Enter" to send the message
+            $('#user-message').keypress(function(event) {
+                if (event.which === 13) {
+                    $('#send-button').click();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

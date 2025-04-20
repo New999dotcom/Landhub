@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - PrimeLand Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-red-50 to-red-100 min-h-screen flex justify-center items-center">
+
+    <!-- Login Container -->
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg border border-red-200">
+        <h2 class="text-3xl font-bold text-red-800 text-center mb-6">Admin Login</h2>
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Username Input -->
+            <div>
+                <label for="text" class="block text-sm font-semibold text-red-700">Username</label>
+                <input type="text" name="email" id="email" required placeholder="Enter your username"
+                    class="w-full mt-2 p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none transition duration-300">
+            </div>
+
+            <!-- Password Input -->
+            <div>
+                <label for="password" class="block text-sm font-semibold text-red-700">Password</label>
+                <input type="password" name="password" id="password" required placeholder="Enter your password"
+                    class="w-full mt-2 p-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none transition duration-300">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                class="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-500 transition duration-300 transform hover:scale-105">
+                Login
+            </button>
+        </form>
+
+        <!-- Alert Message (optional, for invalid login attempt) -->
+        {% if alert %}
+            <div class="mt-4 text-center text-red-500">
+                <p class="text-sm">{{ alert }}</p>
+            </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
