@@ -1,23 +1,25 @@
 import os
-import sys
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
+import importlib
 
-# Add project directory to Python path
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
+# Set DJANGO_SETTINGS_MODULE before any Django imports
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'primelandhub.primelandhub.settings')
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'primelandhub.settings')
+# Initialize Django ASGI application early
+django_asgi_app = get_asgi_application()
 
-# Import routing after path configuration
-from landhub import routing  # Now this will work
+# Lazy import of routing to avoid early model imports
+def get_websocket_urlpatterns():
+    routing = importlib.import_module('landhub.routing')
+    return routing.websocket_urlpatterns
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
+    'http': django_asgi_app,
+    'websocket': AuthMiddlewareStack(
         URLRouter(
-            routing.websocket_urlpatterns
+            get_websocket_urlpatterns()
         )
     ),
 })
