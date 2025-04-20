@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     
     'django.contrib.staticfiles',
     'channels',
-    'landhub',
+    'primelandhub.landhub',
     'django.contrib.humanize',
 ]
 
